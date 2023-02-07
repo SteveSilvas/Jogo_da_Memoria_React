@@ -1,0 +1,3 @@
+type PairType ={
+    cards: CardType[]
+}
