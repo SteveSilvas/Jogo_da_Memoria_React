@@ -4,6 +4,7 @@ import "./board.css";
 import MoveType from "../../@Types/MoveType";
 import ScoreType from "../../@Types/ScoreType";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
+import CardType from "../../@Types/CardType";
 
 function Board(props: any) {
 

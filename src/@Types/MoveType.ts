@@ -1,3 +1,5 @@
+import CardType from "./CardType";
+
 type MoveType = {
     id: number,
     player: string,

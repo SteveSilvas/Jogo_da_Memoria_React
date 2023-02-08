@@ -1,3 +1,4 @@
+import CardType from "./CardType";
 import MoveType from "./MoveType";
 
 type ScoreType = {

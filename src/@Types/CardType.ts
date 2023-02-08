@@ -6,3 +6,5 @@ type CardType = {
     turn:boolean,
     clickCard?: ()=>CardType
 }
+
+export default CardType;
