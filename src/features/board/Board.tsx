@@ -40,6 +40,7 @@ function Board(props: any) {
                     src: src,
                     verso: img,
                     turn: false,
+                    disabled:false,
                 }
             );
         });
@@ -53,28 +54,47 @@ function Board(props: any) {
     const [move, setMove] = useState<MoveType>(buildMoveNull());
     const [cardsList, setCardsList] = useState<CardType[]>(buildCards());
     const [score, setScore] = useState<ScoreType>();
-    const [showWinner, setShowWinner]= useState<boolean>();
-
+    const [showWinner, setShowWinner] = useState<boolean>();
+    const [winner, setWinner] = useState<string>();
     useEffect(() => {
         if (cardsList.length == 0) {
             alert("Jogo Acabou");
+
+            countWinner();
             setShowWinner(true)
         }
 
     }, [cardsList]);
 
+    const countWinner = () => {
+        let scorePlayer1: number = 0;
+        let scorePlayer2: number = 0;
 
-//     useEffect(() => {
-//         // if (cardsList.length == 0) {
-//         //     alert("Jogo Acabou");
-//         // }
-//         alert("Score mudou")
-// console.log(score)
+        if (!score || !score.moves) return;
+        score.moves.map((move) => {
+            if (move.point) {
+                if (move.player == player1) {
+                    scorePlayer1++;
+                } else {
+                    scorePlayer2++;
+                }
+            }
+        })
 
+        updateWinner(scorePlayer1, scorePlayer2);
 
-//     }, [score]);
+    }
 
-
+    const updateWinner = (scorePlayer1: number, scorePlayer2: number)=>{
+        if(scorePlayer1 > scorePlayer2){
+            setWinner(player1)
+        }else if(scorePlayer1 < scorePlayer2){
+            setWinner(player2)
+        }
+        else{
+            setWinner("NINGUÉM");
+        }
+    }
 
     function renderCards() {
         if (!cardsList) return;
@@ -87,6 +107,7 @@ function Board(props: any) {
                 src={card.src}
                 verso={card.verso}
                 turn={card.turn}
+                disabled={card.disabled}
                 clickCard={clickCardHandle}
             />)
         })
@@ -104,7 +125,6 @@ function Board(props: any) {
             move.card2 = card;
             scoreInit();
         }
-
         setRound();
     }
 
@@ -112,6 +132,7 @@ function Board(props: any) {
         let cardsPrev = cardsList ? cardsList.map((c) => {
             if (card.id == c.id) {
                 c.turn = true;
+                c.disabled = true;
             }
             return c;
         }) : [];
@@ -134,7 +155,7 @@ function Board(props: any) {
             moves: buildMoves(),
             pairs: buildScorePair(isPair)
         })
-        
+
         if (!isPair) {
             setTimeout(() => {
                 turnBack();
@@ -175,12 +196,10 @@ function Board(props: any) {
         else {
             movesPrev = [move];
         }
-        
-        clearMove();
-        
-        alert(move.player)
-        return movesPrev;
 
+        clearMove();
+
+        return movesPrev;
     }
 
     const setRound = () => {
@@ -210,13 +229,12 @@ function Board(props: any) {
 
     const clearMove = (): void => {
         setMove(buildMoveNull());
-        console.log(move.player)
     }
 
     const turnBack = () => {
         if (!cardsList) return;
         let cardsPrev: CardType[] = cardsList.map((c) => {
-            return { ...c, turn: false };
+            return { ...c, turn: false, disabled: false };
         });
         setCardsList(cardsPrev);
     }
@@ -240,7 +258,6 @@ function Board(props: any) {
         images.push(
             "https://img.freepik.com/vetores-gratis/bonito-astronauta-alienigena-flutuando-no-espaco-desenhos-animados-icone-ilustracao-vetorial-tecnologia-isolado_138676-5884.jpg?w=826&t=st=1673471242~exp=1673471842~hmac=2a97822e4e0d21ffe6c5f4afb21d9215ac88aebbd15782d1e674e5e240628c93"
         );
-
         images.push(
             "https://cdn.dooca.store/1814/products/wl4jmbx64uafsz0ci1fsqofkb0wbnr6bitqp.jpg?v=1621885027&webp=0"
         );
@@ -250,10 +267,54 @@ function Board(props: any) {
         images.push(
             "https://img.freepik.com/vetores-gratis/bonito-astronauta-alienigena-flutuando-no-espaco-desenhos-animados-icone-ilustracao-vetorial-tecnologia-isolado_138676-5884.jpg?w=826&t=st=1673471242~exp=1673471842~hmac=2a97822e4e0d21ffe6c5f4afb21d9215ac88aebbd15782d1e674e5e240628c93"
         );
-
-        // versos.push("https://img.freepik.com/vetores-gratis/extraterrestre-de-bigode-usando-chapeu-de-balde_43623-895.jpg?w=826&t=st=1673471276~exp=1673471876~hmac=7e99f893b4df4093f78b46c1a1371d2777d5d544cd80b06d2136cb97cb962d23");
-        // versos.push("https://img.freepik.com/vetores-gratis/bonito-astronauta-e-casal-alienigena-juntos-desenhos-animados-icone-ilustracao-vetorial-ciencia-tecnologia-icone_138676-5945.jpg?w=826&t=st=1673471305~exp=1673471905~hmac=c630fa1039f165e6111c90168f884c77fd0840e56b54d272c3eea1306dba8720");
-        // versos.push("https://as1.ftcdn.net/v2/jpg/02/92/72/68/1000_F_292726899_B5jqm2BGw8P4Lpg5LDdaOMhMxArHfNDh.jpg");
+        images.push(
+            "https://cdn-icons-png.flaticon.com/512/845/845922.png?w=826&t=st=1675884421~exp=1675885021~hmac=35d12bf147a6f3cd8e3c2f0abaa1ec1d6fd07419c85490e43fc22d56841add22"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/bonito-alien-selfie-com-telefone-dos-desenhos-animados-vector-icone-ilustracao-ciencia-tecnologia-icone-isolado-plano_138676-5862.jpg?w=826&t=st=1675884465~exp=1675885065~hmac=749a482ea98ee0092d6dd09cb69e4583d14353980654784a3f12ce89bd60e1f8"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/cobranca-mao-desenhado-espaco-adesivos_23-2148262668.jpg?w=826&t=st=1675884505~exp=1675885105~hmac=3cacc7c15208132c27d018d4e9f095ec979dda20cd101b1ec2649b2544cfbeb9"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/logotipo-de-vetor-de-cabeca-alienigena-verde_43623-1083.jpg?w=826&t=st=1675884530~exp=1675885130~hmac=93caf0a70562bf658284e02c51b8f99f790bed30d9e28b25f728153c67297ac6"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/conceito-de-abducao-ufo-com-design-plano_23-2147895316.jpg?w=826&t=st=1675884569~exp=1675885169~hmac=7ef323623fd4dbfa8f08e6ab245b2228d26ea4eec6b4c768b1a336c1d3dd4229"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/fundo-de-ufo-alienigena-com-ilustracao-vetorial-realista-de-simbolos-de-viagem-de-galaxia_1284-75916.jpg?w=1380&t=st=1675884585~exp=1675885185~hmac=acba91b0357c36f3d51f8b22598b7aa10eff23a41a4796325d9863145d66eedc"
+        );
+        images.push(
+            "https://t4.ftcdn.net/jpg/00/74/99/39/240_F_74993949_LzROm1IlxvGxU8mKQH1JEYpf9eCQ4n8G.jpg"
+        );
+        images.push(
+            "https://as2.ftcdn.net/v2/jpg/03/05/83/25/1000_F_305832532_GRGMcqBeZxexzPh9h7mmVYRROLxAq08x.jpg"
+        );
+        images.push(
+            "https://as1.ftcdn.net/v2/jpg/05/60/15/84/1000_F_560158451_WETDExVewhcsHNVScY2rqbaOKowpYiSg.jpg"
+        );
+        images.push(
+            "https://as1.ftcdn.net/v2/jpg/04/32/11/86/1000_F_432118667_WDTH0tD8TmJwaxzRkPFhxjfkN4Aq0RgN.jpg"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/extraterrestre-de-bigode-usando-chapeu-de-balde_43623-895.jpg?w=826&t=st=1673471276~exp=1673471876~hmac=7e99f893b4df4093f78b46c1a1371d2777d5d544cd80b06d2136cb97cb962d23"
+        );
+        images.push(
+            "https://img.freepik.com/vetores-gratis/bonito-astronauta-e-casal-alienigena-juntos-desenhos-animados-icone-ilustracao-vetorial-ciencia-tecnologia-icone_138676-5945.jpg?w=826&t=st=1673471305~exp=1673471905~hmac=c630fa1039f165e6111c90168f884c77fd0840e56b54d272c3eea1306dba8720"
+        );
+        images.push(
+            "https://as1.ftcdn.net/v2/jpg/02/92/72/68/1000_F_292726899_B5jqm2BGw8P4Lpg5LDdaOMhMxArHfNDh.jpg"
+        );
+        images.push(
+            "https://as1.ftcdn.net/v2/jpg/01/15/17/86/1000_F_115178662_THDuvy4gqEU4Jjiioa2tyxbyreJqeupy.jpg"
+        );
+        images.push(
+            "https://as1.ftcdn.net/v2/jpg/03/19/29/44/1000_F_319294410_vZta4reqVQ4pPuWv3wDmhbv9m1UVXQ4I.jpg"
+        );
+        images.push(
+            "https://as2.ftcdn.net/v2/jpg/02/84/22/09/1000_F_284220973_goaCWC98rRabIFTV9HJeQJr3AgpPfSXB.jpg"
+        );
 
         return images.slice(0, amount);
     }
@@ -269,20 +330,21 @@ function Board(props: any) {
         return inputArray;
     }
 
-    const restartGame = ()=>{
-        alert("Recomeçando")
+    const restartGame = () => {
         setCardsList(buildCards());
+        setShowWinner(false);
+        setWinner("");
         setScore(undefined);
     }
 
-    const renderWinnerPanel =()=>{
+    const renderWinnerPanel = () => {
         return showWinner ? <div className="WinniePanel">
-            Parabens {jogadorDaVez} você venceu!
+            Parabens {winner} você venceu!
         </div> : <></>
     }
     return (
         <div className="BoardContainer">
-            <Scoreboard  moves={score ? score.moves : []} player={player1}/>
+            <Scoreboard moves={score ? score.moves : []} player={player1} />
             <div className="ColumnMain">
                 <h2 className="BoardTitle">Vez do Jogador {jogadorDaVez}</h2>
                 <div className="Board">
@@ -290,7 +352,7 @@ function Board(props: any) {
                     {renderWinnerPanel()}
                 </div>
                 <nav className="Footer">
-                <button className="Button" onClick={() => props.turnBackPage()}>
+                    <button className="Button" onClick={() => props.turnBackPage()}>
                         Voltar
                     </button>
                     <button className="Button" onClick={() => restartGame()}>
@@ -299,7 +361,7 @@ function Board(props: any) {
                 </nav>
             </div>
 
-            <Scoreboard moves={score ? score.moves : []}  player={player2}/>
+            <Scoreboard moves={score ? score.moves : []} player={player2} />
 
         </div>
     );

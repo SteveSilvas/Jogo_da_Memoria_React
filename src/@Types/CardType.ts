@@ -4,6 +4,7 @@ type CardType = {
     src: string,
     verso:string,
     turn:boolean,
+    disabled:boolean,
     clickCard?: ()=>CardType
 }
 

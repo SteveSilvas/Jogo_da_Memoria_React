@@ -5,7 +5,7 @@ import "./initalForm.css";
 const InitialForm = (props:any)=>{
     const [player1, setPlayer1] = useState<string>("");
     const [player2, setPlayer2] = useState<string>("");
-    const [amountCards, setAmountCards] = useState<string>("");
+    const [amountCards, setAmountCards] = useState<number>(10);
 
     const handleSubmitForm =()=>{
         props.submitForm(
@@ -33,7 +33,7 @@ const InitialForm = (props:any)=>{
                     <select
                         className="Input Select"
                         id="quantidadeCartas"
-                        onChange={(e) =>setAmountCards(e.target.value)}
+                        onChange={(e) =>setAmountCards(Number(e.target.value))}
                         value={10}
                     >
                         <option value={10}>10</option>
@@ -48,7 +48,6 @@ const InitialForm = (props:any)=>{
                         className="Input" 
                         type="text"
                         onChange={(e) => setPlayer1(e.target.value)}
-                        placeholder="Nome"
                         required
                     />
                 </div>
@@ -58,7 +57,6 @@ const InitialForm = (props:any)=>{
                         className="Input"
                         type="text"
                         onChange={(e) => setPlayer2(e.target.value)}
-                        placeholder="Nome"
                         required
                     />
                 </div>
