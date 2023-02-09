@@ -59,7 +59,8 @@
 
 .Button{
     width: 8rem;
+    padding: 0.3rem;
     background-color: rgb(38, 176, 38);
     font-size: 1.1rem;
-    border-radius: 15px;
+    border-radius: 12px;
 }

@@ -1,30 +1,355 @@
-.Card{
+.Card {
     width: 10rem;
     height: 10rem;
     border: 1px solid black;
     box-shadow: 4px 4px 10px 0px black;
-    display:flex;
+    display: flex;
     transition: 0.2s;
 }
-.Card:hover{
+.Card:hover {
     width: 10rem;
     height: 10rem;
     border: 1px solid black;
     box-shadow: 4px 4px 10px 0px green;
-    display:flex;
+    display: flex;
     transition: 0.2s;
 }
 
-.Image{
+.Image {
     width: 100%;
 }
 
-.CardMini{
+.CardMini {
     width: 5rem;
     height: 5rem;
 }
 
-.CardMini:hover{
+.CardMini:hover {
     width: 5rem;
     height: 5rem;
+}
+
+@media screen and (max-width: 500px) {
+    .TenCards {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TenCards:hover {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TwentyCards {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TwentyCards:hover {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+
+    .ThirtyCards {
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards:hover {
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+
+
+    .FortyCards {
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .FortyCards:hover {
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+}
+
+@media (min-width: 501px) and (max-width: 700px) {
+    .TenCards {
+        width: 7rem;
+        height: 7rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TenCards:hover {
+        width: 7rem;
+        height: 7rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+
+    .TwentyCards {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TwentyCards:hover {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards {
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards:hover {
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+
+    .FortyCards {
+        width: 3em;
+        height: 3rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .FortyCards:hover {
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+}
+
+@media (min-width: 701px) and (max-width: 1199px) {
+    .TenCards {
+        width: 8rem;
+        height: 8rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TenCards:hover {
+        width: 8rem;
+        height: 8rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+
+    .TwentyCards {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TwentyCards:hover {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards:hover {
+        width: 5rem;
+        height: 5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+
+    .FortyCards {
+        width: 4.5rem;
+        height: 4.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .FortyCards:hover {
+        width: 4.5rem;
+        height: 4.5rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+}
+
+@media (min-width: 1200px) {
+    .TenCards {
+        width: 12rem;
+        height: 12rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TenCards:hover {
+        width: 12rem;
+        height: 12rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+    .TwentyCards {
+        width: 9rem;
+        height: 9rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .TwentyCards:hover {
+        width: 9rem;
+        height: 9rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards {
+        width: 7rem;
+        height: 7rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .ThirtyCards:hover {
+        width: 7rem;
+        height: 7rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+
+
+    .FortyCards {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+
+    .FortyCards:hover {
+        width: 6rem;
+        height: 6rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 5px 0px green;
+        transition: 0.2s;
+    }
+}
+
+/* @media (orientation: landscape){
+    .TenCards {
+        width: 10rem;
+        height: 10rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px black;
+        display: flex;
+        transition: 0.2s;
+    }
+    
+    .TenCards:hover {
+        width: 10rem;
+        height: 10rem;
+        border: 1px solid black;
+        box-shadow: 4px 4px 10px 0px green;
+        display: flex;
+        transition: 0.2s;
+     } 
+}  */
+
+.Turn {
+    animation: TurnAnimation 2s;
+}
+
+@keyframes TurnAnimation {
+    Turn {
+        transform: rotateY(0deg);
+    }
+    to {
+        transform: rotateY(180deg);
+    }
 }

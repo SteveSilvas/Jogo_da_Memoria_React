@@ -5,7 +5,6 @@ const Scoreboard = (props: any) => {
     let scorePlayer = 0;
     let moves = props.moves;
     let cardsPairs: any[] =[];
-    console.log(moves)
     if (moves) {
         moves.map((move: MoveType) => {
 

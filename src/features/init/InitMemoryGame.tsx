@@ -25,7 +25,6 @@ const InitMemoryGame = () => {
     }
 
     function submitFormHandler(form: InitialFormType) {
-        console.log(form)
         setAmountCards(form.amountCards);
         setPlayer1(form.player1);
         setPlayer2(form.player2);

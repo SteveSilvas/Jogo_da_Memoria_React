@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import "./card.css";
 
 const Card = (props: any) => {
-    let classes = `Card ${props.className}`;
+    const [classes, setClasses] = useState<string>(props.className);
     const [turn, setTurn] = useState<boolean>(props.turn);
     const [disabled, setDisabled] = useState<boolean>(true);
     const click = (e: any) => {
         e.preventDefault();
         props.clickCard({
-            id: e.target.id,
+            id: props.id,
             src: props.src,
             verso: props.verso
         });
@@ -16,6 +16,10 @@ const Card = (props: any) => {
 
     useEffect(() => {
         setTurn(props.turn)
+        if(props.turn==true){
+            let classe = `${classes} Turn`;
+            setClasses(classe)
+        }
     }, [props.turn]);
 
     useEffect(() => {
@@ -27,7 +31,7 @@ const Card = (props: any) => {
             <img
                 className="Image"
                 id={props.id}
-                src={!props.turn ? props.src : props.verso}
+                src={!turn ? props.src : props.verso}
                 alt={props.alt}
                 onClick={(e) => {disabled ? ()=>{} : click(e) }}
             />
