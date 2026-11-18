@@ -1,4 +1,4 @@
-# Compose pronto para o Coolify.
+# Compose pronto para o Coolify (contexto = raiz do repositório).
 # O Coolify expõe a aplicação via variável SERVICE_FQDN_JOGODAMEMORIA_80 (proxy Traefik),
 # por isso não fixamos "ports" aqui (evita conflito com o proxy).
 #

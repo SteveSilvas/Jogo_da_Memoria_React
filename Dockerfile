@@ -3,12 +3,13 @@ FROM node:26-alpine AS build
 
 WORKDIR /app
 
+# O app React fica na subpasta Jogo_da_Memoria_React/
 # Instala as dependências usando o lockfile (build reproduzível)
-COPY package.json package-lock.json ./
+COPY Jogo_da_Memoria_React/package.json Jogo_da_Memoria_React/package-lock.json ./
 RUN npm ci
 
 # Copia o código e gera a build de produção (base "/" para servir na raiz do domínio)
-COPY . .
+COPY Jogo_da_Memoria_React/ ./
 RUN npm run build
 
 # ---- Etapa de produção (nginx) ----

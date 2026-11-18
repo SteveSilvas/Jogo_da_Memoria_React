@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/dist-ssr
+**/.git
+**/.gitignore
+**/.vscode
+**/.idea
+**/*.log
+npm-debug.log*
+**/.DS_Store
+
+# Não faz parte da build web
+JogoDaMemoria_ReactNative

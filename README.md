@@ -56,26 +56,30 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 ## Estrutura do projeto
 
 ```
-Jogo_da_Memoria_React/
-├── Dockerfile              # Build multi-stage + nginx para o Coolify
+Jogo_da_Memoria_React/                    # raiz do repositório
+├── Dockerfile              # Build multi-stage + nginx (contexto = raiz)
 ├── docker-compose.yml      # Compose pronto para o Coolify
 ├── nginx.conf              # Servidor estático com fallback de SPA
-├── public/                 # Arquivos estáticos
-└── src/
-    ├── @Types/             # Tipos compartilhados (carta, configuração do jogo)
-    ├── assets/             # Imagens e efeitos sonoros
-    ├── components/         # Componentes reutilizáveis
-    │   ├── Card/           # Carta individual
-    │   ├── Scoreboard/     # Placar do jogador
-    │   └── WinnerPanel/    # Painel de fim de jogo
-    ├── data/               # Lista de imagens usadas nas cartas
-    ├── features/           # Telas e lógica principal
-    │   ├── init/           # Orquestra a troca entre formulário e tabuleiro
-    │   ├── initForm/       # Tela inicial (nomes e quantidade de cartas)
-    │   └── board/          # Tabuleiro e regras do jogo
-    ├── utils/              # Funções auxiliares (embaralhar, som)
-    ├── App.tsx
-    └── main.tsx
+├── .dockerignore
+├── README.md
+├── JogoDaMemoria_ReactNative/          # versão mobile (Expo)
+└── Jogo_da_Memoria_React/              # app web (React + Vite)
+    ├── public/                 # Arquivos estáticos
+    └── src/
+        ├── @Types/             # Tipos compartilhados (carta, configuração do jogo)
+        ├── assets/             # Imagens e efeitos sonoros
+        ├── components/         # Componentes reutilizáveis
+        │   ├── Card/           # Carta individual
+        │   ├── Scoreboard/     # Placar do jogador
+        │   └── WinnerPanel/    # Painel de fim de jogo
+        ├── data/               # Lista de imagens usadas nas cartas
+        ├── features/           # Telas e lógica principal
+        │   ├── init/           # Orquestra a troca entre formulário e tabuleiro
+        │   ├── initForm/       # Tela inicial (nomes e quantidade de cartas)
+        │   └── board/          # Tabuleiro e regras do jogo
+        ├── utils/              # Funções auxiliares (embaralhar, som)
+        ├── App.tsx
+        └── main.tsx
 ```
 
 ## Como jogar
@@ -89,21 +93,25 @@ Jogo_da_Memoria_React/
 
 ## Deploy com Docker (Coolify)
 
-O projeto inclui `Dockerfile` e `docker-compose.yml` prontos para o [Coolify](https://coolify.io/).
+O projeto inclui `Dockerfile` e `docker-compose.yml` **na raiz do repositório**, prontos para o [Coolify](https://coolify.io/).
 A build usa o `base` do Vite como `/` (raiz do domínio), ideal para um domínio próprio.
+
+> ⚠️ O `Dockerfile` fica na **raiz** de propósito: assim o contexto de build é a raiz do
+> repositório (padrão do Coolify) e ele encontra `Dockerfile`, `nginx.conf` e a subpasta
+> `Jogo_da_Memoria_React/` sem configuração extra.
 
 1. Suba o repositório para o GitHub/GitLab que o Coolify acessa.
 2. No Coolify: **+ New Resource → Public Repository** (ou *Private Repository*) e selecione o repositório.
 3. Em **Build Pack**, escolha **Dockerfile** (ou **Docker Compose**).
-4. Ajuste o campo **Base Directory** para `Jogo_da_Memoria_React`, pois o app está nessa subpasta.
-5. Em **Ports Exposes**, informe `80` (porta do nginx do container).
-6. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
-7. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+4. **Base Directory:** deixe **vazio** (raiz do repositório). *Não* coloque `Jogo_da_Memoria_React` aqui.
+5. **Dockerfile Location:** `/Dockerfile` (padrão).
+6. Em **Ports Exposes**, informe `80` (porta do nginx do container).
+7. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
+8. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
 
 ### Testar localmente antes
 
 ```bash
-cd Jogo_da_Memoria_React
 docker build -t jogo-da-memoria .
 docker run --rm -p 8080:80 jogo-da-memoria
 # acesse http://localhost:8080
@@ -112,7 +120,6 @@ docker run --rm -p 8080:80 jogo-da-memoria
 Ou com compose:
 
 ```bash
-cd Jogo_da_Memoria_React
 docker compose up --build
 ```
 
