@@ -3,7 +3,12 @@ import react from "@vitejs/plugin-react";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    // Caminho base para o GitHub Pages (https://SteveSilvas.github.io/Jogo_da_Memoria_React/)
-    base: "/Jogo_da_Memoria_React/",
+    // "/" serve na raiz do domínio (Coolify/nginx).
+    // Defina VITE_BASE_PATH para publicar em um subcaminho (ex.: GitHub Pages).
+    base: process.env.VITE_BASE_PATH ?? "/",
     plugins: [react()],
+    preview: {
+        host: true,
+        port: 4173,
+    },
 });

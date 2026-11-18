@@ -1,0 +1,18 @@
+# Compose pronto para o Coolify.
+# O Coolify expõe a aplicação via variável SERVICE_FQDN_JOGODAMEMORIA_80 (proxy Traefik),
+# por isso não fixamos "ports" aqui (evita conflito com o proxy).
+#
+# Teste local:
+#   docker compose up --build
+#   (ou sem compose) docker build -t jogo-da-memoria . && docker run --rm -p 8080:80 jogo-da-memoria
+services:
+    jogo-da-memoria:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: jogo-da-memoria:latest
+        restart: unless-stopped
+        environment:
+            - SERVICE_FQDN_JOGODAMEMORIA_80
+        expose:
+            - "80"

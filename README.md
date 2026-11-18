@@ -40,22 +40,26 @@ npm install
 npm run dev
 ```
 
-Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/Jogo_da_Memoria_React/`).
+Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 
 ## Scripts disponíveis
 
-| Comando             | Descrição                                                        |
-| ------------------- | ---------------------------------------------------------------- |
-| `npm run dev`       | Inicia o servidor de desenvolvimento com recarregamento automático |
-| `npm run build`     | Verifica os tipos e gera a versão de produção em `dist/`          |
-| `npm run preview`   | Serve localmente a versão de produção já gerada                   |
-| `npm run typecheck` | Apenas verifica os tipos TypeScript                               |
-| `npm run deploy`    | Publica a pasta `dist/` no GitHub Pages                           |
+| Comando              | Descrição                                                          |
+| -------------------- | ------------------------------------------------------------------ |
+| `npm run dev`        | Inicia o servidor de desenvolvimento com recarregamento automático |
+| `npm run build`      | Verifica os tipos e gera a versão de produção em `dist/`           |
+| `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
+| `npm run preview`    | Serve localmente a versão de produção já gerada                    |
+| `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
 
 ## Estrutura do projeto
 
 ```
 Jogo_da_Memoria_React/
+├── Dockerfile              # Build multi-stage + nginx para o Coolify
+├── docker-compose.yml      # Compose pronto para o Coolify
+├── nginx.conf              # Servidor estático com fallback de SPA
 ├── public/                 # Arquivos estáticos
 └── src/
     ├── @Types/             # Tipos compartilhados (carta, configuração do jogo)
@@ -83,17 +87,50 @@ Jogo_da_Memoria_React/
    - Se forem diferentes, elas voltam a ficar viradas para baixo e a vez passa para o outro jogador.
 4. Vence quem conquistar mais pares até que todas as cartas sejam encontradas.
 
+## Deploy com Docker (Coolify)
+
+O projeto inclui `Dockerfile` e `docker-compose.yml` prontos para o [Coolify](https://coolify.io/).
+A build usa o `base` do Vite como `/` (raiz do domínio), ideal para um domínio próprio.
+
+1. Suba o repositório para o GitHub/GitLab que o Coolify acessa.
+2. No Coolify: **+ New Resource → Public Repository** (ou *Private Repository*) e selecione o repositório.
+3. Em **Build Pack**, escolha **Dockerfile** (ou **Docker Compose**).
+4. Ajuste o campo **Base Directory** para `Jogo_da_Memoria_React`, pois o app está nessa subpasta.
+5. Em **Ports Exposes**, informe `80` (porta do nginx do container).
+6. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
+7. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+
+### Testar localmente antes
+
+```bash
+cd Jogo_da_Memoria_React
+docker build -t jogo-da-memoria .
+docker run --rm -p 8080:80 jogo-da-memoria
+# acesse http://localhost:8080
+```
+
+Ou com compose:
+
+```bash
+cd Jogo_da_Memoria_React
+docker compose up --build
+```
+
+> Observação: o `docker-compose.yml` não fixa `ports` de propósito — o Coolify faz o roteamento
+> pelo proxy dele usando a variável `SERVICE_FQDN_JOGODAMEMORIA_80`.
+
 ## Deploy no GitHub Pages
 
-O projeto já está configurado com o caminho base `/Jogo_da_Memoria_React/`.
-Para publicar:
+O deploy no Pages continua funcionando, mas agora usando o script dedicado que aplica o
+subcaminho correto:
 
 ```bash
 cd Jogo_da_Memoria_React
 npm run deploy
 ```
 
-O comando gera a build e envia o conteúdo para a branch `gh-pages`.
+O `npm run deploy` executa `build:pages` (com `VITE_BASE_PATH=/Jogo_da_Memoria_React/`) e envia
+o conteúdo para a branch `gh-pages`.
 
 ## Projeto mobile (React Native)
 
