@@ -24,7 +24,7 @@ Cada jogador tenta encontrar mais pares de cartas do que o adversário.
 
 ## Pré-requisitos
 
-- [Node.js](https://nodejs.org/) `^20.19.0` ou `>=22.12.0`
+- [Node.js](https://nodejs.org/) `26.13.1` (LTS "Lithium") ou superior
 - npm (já vem com o Node.js)
 
 ## Como rodar
