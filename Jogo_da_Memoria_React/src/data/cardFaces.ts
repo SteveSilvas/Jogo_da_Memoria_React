@@ -1,0 +1,25 @@
+export const CARD_FACES: string[] = [
+    "https://cdn.dooca.store/1814/products/wl4jmbx64uafsz0ci1fsqofkb0wbnr6bitqp.jpg?v=1621885027&webp=0",
+    "https://img.freepik.com/vetores-gratis/bonito-alien-lean-na-ilustracao-do-icone-do-vetor-dos-desenhos-animados-ufo-conceito-de-icone-de-tecnologia-de-ciencia-isolado_138676-5983.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/alienigena-bonito-com-ilustracao-de-icone-de-vetor-de-terno-de-astronauta-conceito-de-icone-de-tecnologia-de-ciencia-vetor-premium-isolado-estilo-flat-cartoon_138676-3537.jpg?w=826",
+    "https://img.freepik.com/fotos-premium/ufo-um-disco-alienigena-pairando-acima-do-campo-nas-nuvens-pairando-imovel-no-ceu-objeto-voador-nao-identificado-invasao-alienigena-vida-extraterrestre-viagem-espacial-nave-espacial-midia-mista_99433-8600.jpg?w=1380",
+    "https://img.freepik.com/vetores-gratis/conjunto-de-monstros-fofos-design-de-personagem-de-desenho-animado-para-poster-de-produtos-de-bebe-logotipo-e-design-de-embalagem-ilustracao-vetorial_1150-60589.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/bonito-astronauta-alienigena-flutuando-no-espaco-desenhos-animados-icone-ilustracao-vetorial-tecnologia-isolado_138676-5884.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/bonito-astronauta-e-alienigena-sentado-com-paz-mao-cartoon-vector-icon-ilustracao-ciencia-tecno_138676-6748.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/bonito-alien-selfie-com-telefone-dos-desenhos-animados-vector-icone-ilustracao-ciencia-tecnologia-icone-isolado-plano_138676-5862.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/cobranca-mao-desenhado-espaco-adesivos_23-2148262668.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/logotipo-de-vetor-de-cabeca-alienigena-verde_43623-1083.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/conceito-de-abducao-ufo-com-design-plano_23-2147895316.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/fundo-de-ufo-alienigena-com-ilustracao-vetorial-realista-de-simbolos-de-viagem-de-galaxia_1284-75916.jpg?w=1380",
+    "https://t4.ftcdn.net/jpg/00/74/99/39/240_F_74993949_LzROm1IlxvGxU8mKQH1JEYpf9eCQ4n8G.jpg",
+    "https://as2.ftcdn.net/v2/jpg/03/05/83/25/1000_F_305832532_GRGMcqBeZxexzPh9h7mmVYRROLxAq08x.jpg",
+    "https://as1.ftcdn.net/v2/jpg/05/60/15/84/1000_F_560158451_WETDExVewhcsHNVScY2rqbaOKowpYiSg.jpg",
+    "https://as1.ftcdn.net/v2/jpg/04/32/11/86/1000_F_432118667_WDTH0tD8TmJwaxzRkPFhxjfkN4Aq0RgN.jpg",
+    "https://img.freepik.com/vetores-gratis/extraterrestre-de-bigode-usando-chapeu-de-balde_43623-895.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/bonito-astronauta-e-casal-alienigena-juntos-desenhos-animados-icone-ilustracao-vetorial-ciencia-tecnologia-icone_138676-5945.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/bonito-alienigena-voando-com-ilustracao-do-icone-do-vetor-dos-desenhos-animados-ufo-icone-de-tecnologia-de-ciencia-isolado-plano_138676-6190.jpg?w=826",
+    "https://img.freepik.com/vetores-gratis/foguetes-ufo-e-naves-espaciais-isoladas-em-azul_107791-6491.jpg?w=1380",
+    "https://img.freepik.com/vetores-gratis/bonito-alienigena-montando-ovni-com-ilustracao-do-icone-do-vetor-dos-desenhos-animados-do-sinal-do-amor-conceito-de-icone-de-tecnologia-de-ciencia-vetor-premium-isolado-estilo-flat-cartoon_138676-3810.jpg?w=826",
+];
+
+export const CARD_BACK = new URL("../assets/block.svg", import.meta.url).href;

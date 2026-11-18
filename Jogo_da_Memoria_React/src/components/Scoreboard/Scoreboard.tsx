@@ -1,51 +1,41 @@
-import MoveType from "../../@Types/MoveType";
-import Card from "../card/Card";
+import React from "react";
+import "./scoreboard.css";
 
-const Scoreboard = (props: any) => {
-    let scorePlayer = 0;
-    let moves = props.moves;
-    let cardsPairs: any[] =[];
-    if (moves) {
-        moves.map((move: MoveType) => {
+type ScoreboardProps = {
+    name: string;
+    score: number;
+    active: boolean;
+    pairs: string[];
+};
 
-            if (move.point > 0 && move.player == props.player) {
-                scorePlayer++;
-            }
-        })
-
-    }
-
-    const renderPairs = () => {
-
-        if(moves){
-            moves.map((m:MoveType, i:number)=>{
-                if(!m.card1 || !m.card2) return;
-                if (m.point > 0 && m.player == props.player) {
-                    cardsPairs.push(<Card
-                        className="CardMini"
-                        key={i}
-                        src={m.card1.verso}
-                        turn={false}
-                        clickCard={()=>{}}
-                    />)
-                }
-             
-            })
-        }
-
-        return cardsPairs;
-    }
-
+const Scoreboard = ({ name, score, active, pairs }: ScoreboardProps) => {
     return (
-        <div className="ColumnScore">
-            <strong>Jogador: {props.player}</strong>
-            <strong>Pontuação: {scorePlayer}</strong>
-            <div>
-                {renderPairs()}
+        <aside className={`Scoreboard${active ? " is-active" : ""}`}>
+            <header className="Scoreboard-header">
+                <span className="Scoreboard-name" title={name}>
+                    {name}
+                </span>
+                {active && <span className="Scoreboard-turn">Sua vez</span>}
+            </header>
+            <p className="Scoreboard-score">
+                <span className="Scoreboard-scoreValue">{score}</span>
+                <span className="Scoreboard-scoreLabel">
+                    {score === 1 ? "par" : "pares"}
+                </span>
+            </p>
+            <div className="Scoreboard-pairs">
+                {pairs.map((face, i) => (
+                    <img
+                        key={i}
+                        className="Scoreboard-pair"
+                        src={face}
+                        alt="Par conquistado"
+                        draggable={false}
+                    />
+                ))}
             </div>
-        </div>
+        </aside>
     );
-}
-
+};
 
 export default Scoreboard;

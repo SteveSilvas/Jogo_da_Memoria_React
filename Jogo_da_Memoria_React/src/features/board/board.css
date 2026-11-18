@@ -1,48 +1,102 @@
-.BoardContainer{
-    background-color: black;
-    padding: 1%;
+.BoardContainer {
+    width: 100%;
+    min-height: 100%;
+    padding: 1.5rem;
     display: flex;
     flex-direction: row;
-    width: 90%;
-    min-height: 90%;
-    justify-content: space-evenly;
-    color: white;
-    border: 1px solid pink;
-    border-radius: 12px;
-    box-shadow: 10px 10px 10px black;
-}
-
-.ColumnScore{
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-height: 80%;
-    border: 1px solid pink;
-    border-radius: 12px;
-    padding: 1%;
-}
-
-.ColumnMain{
-    display: flex;
-    flex-direction: column;
-    flex-grow: 2;
-    min-height: 80%;
-}
-
-.BoardTitle{
-    font-weight: bold;
-}
-
-.Board{
-    height: 80%;
-    overflow: hidden;
-    flex-wrap: wrap;
-    display: flex;
+    align-items: flex-start;
     justify-content: center;
-    align-items: center;
+    gap: 1.5rem;
+    background: radial-gradient(circle at 50% 0%, #22265c 0%, #0a0c22 60%, #05061a 100%);
+    color: #fff;
 }
 
-.Footer{
+.Board-main {
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1 1 auto;
+    max-width: 60rem;
+}
+
+.Board-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.Board-title strong {
+    color: #38d39f;
+}
+
+.Board-progress {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.Board-grid {
+    display: grid;
+    gap: 0.6rem;
+    width: 100%;
+    justify-content: center;
+    margin: 0.5rem 0;
+}
+
+.Board-grid.grid-10 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    max-width: 44rem;
+}
+
+.Board-grid.grid-20 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    max-width: 46rem;
+}
+
+.Board-grid.grid-30 {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    max-width: 52rem;
+}
+
+.Board-grid.grid-40 {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    max-width: 58rem;
+}
+
+.Board-footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 820px) {
+    .BoardContainer {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .Board-grid.grid-30,
+    .Board-grid.grid-40 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .Board-grid {
+        gap: 0.4rem;
+    }
+
+    .Board-grid.grid-10,
+    .Board-grid.grid-20 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .Board-grid.grid-30,
+    .Board-grid.grid-40 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
 }

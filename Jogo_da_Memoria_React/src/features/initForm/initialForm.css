@@ -1,0 +1,86 @@
+.StartScreen {
+    min-height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: radial-gradient(circle at 20% 20%, #2a2f6e 0%, #0a0c22 55%, #05061a 100%);
+}
+
+.StartCard {
+    width: min(30rem, 100%);
+    padding: 2.5rem 2rem;
+    border-radius: 22px;
+    background: rgba(15, 18, 46, 0.9);
+    border: 1px solid rgba(120, 140, 255, 0.28);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.StartTitle {
+    margin: 0;
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    background: linear-gradient(90deg, #7d8bff, #38d39f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-align: center;
+}
+
+.StartSubtitle {
+    margin: 0.5rem 0 2rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.StartForm {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15rem;
+}
+
+.Field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.Field-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.Field-input {
+    height: 2.9rem;
+    padding: 0 0.9rem;
+    border-radius: 12px;
+    border: 1px solid rgba(120, 140, 255, 0.35);
+    background: rgba(8, 10, 28, 0.85);
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.Field-input:focus {
+    border-color: #7d8bff;
+    box-shadow: 0 0 0 3px rgba(125, 139, 255, 0.25);
+}
+
+.Field-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.Field-select {
+    cursor: pointer;
+}
+
+.StartButton {
+    margin-top: 0.5rem;
+    height: 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+}

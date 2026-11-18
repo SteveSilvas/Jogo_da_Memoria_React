@@ -1,0 +1,107 @@
+.Card {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    perspective: 900px;
+    transition: transform 0.15s ease;
+}
+
+.Card:disabled {
+    cursor: default;
+}
+
+.Card:not(:disabled):hover {
+    transform: translateY(-4px);
+}
+
+.Card-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.Card.is-flipped .Card-inner {
+    transform: rotateY(180deg);
+}
+
+.Card-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+}
+
+.Card-front {
+    background: linear-gradient(160deg, #2b2f6b, #141634);
+    border: 2px solid rgba(255, 255, 255, 0.18);
+}
+
+.Card-front::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.06) 0 10px,
+        transparent 10px 20px
+    );
+}
+
+.Card-back {
+    background: #0d1030;
+    border: 2px solid #5b6bff;
+    transform: rotateY(180deg);
+}
+
+.Card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.Card-front .Card-image {
+    width: 62%;
+    height: 62%;
+    object-fit: contain;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 6px rgba(120, 140, 255, 0.6));
+}
+
+.Card.is-matched .Card-inner {
+    transform: rotateY(180deg) scale(0.94);
+}
+
+.Card.is-matched .Card-back {
+    border-color: #38d39f;
+    box-shadow: 0 0 0 3px rgba(56, 211, 159, 0.5), 0 0 22px rgba(56, 211, 159, 0.45);
+}
+
+.Card.is-matched {
+    animation: matched-pop 0.4s ease;
+}
+
+@keyframes matched-pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
