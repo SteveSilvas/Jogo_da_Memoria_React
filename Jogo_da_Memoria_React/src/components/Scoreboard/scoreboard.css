@@ -110,4 +110,8 @@
     .Scoreboard.is-active {
         transform: none;
     }
+
+    .Scoreboard-pair {
+        animation: none;
+    }
 }

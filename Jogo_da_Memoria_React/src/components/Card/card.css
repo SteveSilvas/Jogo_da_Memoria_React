@@ -112,9 +112,6 @@
     outline: 3px solid #ffd76e;
     outline-offset: 3px;
     border-radius: 16px;
-}
-
-.Card:focus-visible .Card-inner {
     box-shadow: 0 0 0 3px rgba(255, 215, 110, 0.55), 0 0 24px rgba(255, 215, 110, 0.45);
 }
 

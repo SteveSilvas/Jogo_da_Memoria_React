@@ -28,24 +28,29 @@ const precacheManifest = (): Plugin => ({
 // Redes sociais nao resolvem caminho relativo em og:image/twitter:image, entao as
 // URLs absolutas sao montadas aqui com a origem do build e o `base` configurado.
 // Defina VITE_SITE_URL com a origem publica (sem barra final).
-const absoluteSocialUrls = (): Plugin => ({
-    name: "absolute-social-urls",
-    transformIndexHtml(html) {
-        const origin = (process.env.VITE_SITE_URL || DEFAULT_SITE_ORIGIN).replace(
-            /\/+$/,
-            "",
-        );
-        const url = new URL(basePath, origin).href;
-        const image = new URL(
-            `${basePath.replace(/\/+$/, "")}/og-image.jpg`,
-            origin,
-        ).href;
+const absoluteSocialUrls = (): Plugin => {
+    let resolvedBase = basePath;
+    return {
+        name: "absolute-social-urls",
+        configResolved(config) {
+            resolvedBase = config.base;
+        },
+        transformIndexHtml(html) {
+            const origin = (
+                process.env.VITE_SITE_URL || DEFAULT_SITE_ORIGIN
+            ).replace(/\/+$/, "");
+            const url = new URL(resolvedBase, origin).href;
+            const image = new URL(
+                `${resolvedBase.replace(/\/+$/, "")}/og-image.jpg`,
+                origin,
+            ).href;
 
-        return html
-            .replaceAll("%SITE_URL%", url)
-            .replaceAll("%SITE_IMAGE%", image);
-    },
-});
+            return html
+                .replaceAll("%SITE_URL%", url)
+                .replaceAll("%SITE_IMAGE%", image);
+        },
+    };
+};
 
 // https://vitejs.dev/config/
 export default defineConfig({

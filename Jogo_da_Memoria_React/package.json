@@ -18,7 +18,7 @@
         "deploy": "gh-pages -d dist",
         "test": "vitest run",
         "test:watch": "vitest",
-        "test:assets": "node --test \"tests/**/*.test.mjs\""
+        "test:assets": "node --test \"tests/**/*.test.mjs\" \"test/**/*.test.mjs\""
     },
     "dependencies": {
         "react": "^19.3.1",
