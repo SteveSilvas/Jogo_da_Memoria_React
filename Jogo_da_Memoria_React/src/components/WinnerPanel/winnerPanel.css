@@ -95,3 +95,33 @@
         transform: translateY(0) scale(1);
     }
 }
+
+.WinnerPanel-summary {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 0 0 1.5rem;
+}
+
+.WinnerPanel-summaryItem {
+    flex: 1 1 0;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    background: rgba(120, 140, 255, 0.12);
+}
+
+.WinnerPanel-summaryLabel {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+}
+
+.WinnerPanel-summaryValue {
+    margin: 0.15rem 0 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #7d8bff;
+    font-variant-numeric: tabular-nums;
+}

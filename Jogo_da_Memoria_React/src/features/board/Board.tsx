@@ -3,6 +3,7 @@ import CardType from "../../@Types/CardType";
 import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
 import { shuffle } from "../../utils/shuffle";
 import { playSound } from "../../utils/sound";
+import { formatDuration } from "../../utils/formatTime";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
@@ -53,8 +54,13 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
+    const [moves, setMoves] = useState(0);
+    const [elapsedMs, setElapsedMs] = useState(0);
+    const [announcement, setAnnouncement] = useState("");
 
     const timeoutRef = useRef<number | null>(null);
+    const timerRef = useRef<number | null>(null);
+    const startedAtRef = useRef<number | null>(null);
 
     const clearPendingTimeout = useCallback(() => {
         if (timeoutRef.current !== null) {
@@ -63,17 +69,46 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         }
     }, []);
 
-    useEffect(() => clearPendingTimeout, [clearPendingTimeout]);
+    const stopTimer = useCallback(() => {
+        if (timerRef.current !== null) {
+            window.clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+    }, []);
+
+    // Elapsed time is always derived from the start timestamp so a throttled or
+    // delayed interval cannot accumulate drift.
+    const startTimer = useCallback(() => {
+        if (startedAtRef.current !== null) return;
+        startedAtRef.current = Date.now();
+        timerRef.current = window.setInterval(() => {
+            if (startedAtRef.current === null) return;
+            setElapsedMs(Date.now() - startedAtRef.current);
+        }, 1000);
+    }, []);
+
+    useEffect(
+        () => () => {
+            clearPendingTimeout();
+            stopTimer();
+        },
+        [clearPendingTimeout, stopTimer],
+    );
 
     const resetGame = useCallback(() => {
         clearPendingTimeout();
+        stopTimer();
+        startedAtRef.current = null;
         setCards(buildDeck(amountCards));
         setSelected([]);
         setTurn(0);
         setPlayers(initialPlayers(player1, player2));
         setIsLocked(false);
         setShowWinner(false);
-    }, [amountCards, player1, player2, clearPendingTimeout]);
+        setMoves(0);
+        setElapsedMs(0);
+        setAnnouncement("");
+    }, [amountCards, player1, player2, clearPendingTimeout, stopTimer]);
 
     const totalPairs = useMemo(() => Math.floor(amountCards / 2), [amountCards]);
 
@@ -82,6 +117,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             if (isLocked || selected.length >= 2) return;
             if (card.matched || card.flipped) return;
 
+            startTimer();
             playSound(FLIP_SOUND, 0.35);
             const nextSelected = [...selected, card.id];
             setCards((prev) =>
@@ -95,6 +131,14 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             const first = cards.find((c) => c.id === firstId);
             const second = cards.find((c) => c.id === secondId);
             if (!first || !second) return;
+
+            const nextMoves = moves + 1;
+            setMoves(nextMoves);
+            setAnnouncement(
+                `Jogada ${nextMoves}. Tempo ${formatDuration(
+                    startedAtRef.current === null ? 0 : Date.now() - startedAtRef.current,
+                )}.`,
+            );
 
             if (first.face === second.face) {
                 playSound(MATCH_SOUND, 0.5);
@@ -133,15 +177,29 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 timeoutRef.current = null;
             }, MATCH_DELAY);
         },
-        [cards, isLocked, selected, turn],
+        [cards, isLocked, moves, selected, turn, startTimer],
+    );
+
+    const isFinished = useMemo(
+        () => cards.length > 0 && cards.every((c) => c.matched),
+        [cards],
     );
 
     useEffect(() => {
-        if (cards.length > 0 && cards.every((c) => c.matched)) {
-            playSound(WIN_SOUND, 0.45);
-            setShowWinner(true);
-        }
-    }, [cards]);
+        if (!isFinished) return;
+        stopTimer();
+        playSound(WIN_SOUND, 0.45);
+        setShowWinner(true);
+    }, [isFinished, stopTimer]);
+
+    useEffect(() => {
+        if (!showWinner || startedAtRef.current === null) return;
+        const finalMs = Date.now() - startedAtRef.current;
+        setElapsedMs(finalMs);
+        setAnnouncement(
+            `Fim de jogo. ${moves} ${moves === 1 ? "jogada" : "jogadas"} em ${formatDuration(finalMs)}.`,
+        );
+    }, [showWinner, moves]);
 
     const renderGrid = () => (
         <div className={`Board-grid ${sizeClassFor(amountCards)}`}>
@@ -175,6 +233,27 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     {cards.filter((c) => c.matched).length / 2} encontrados
                 </p>
 
+                <div className="Board-stats">
+                    <span className="Board-stat">
+                        <span className="Board-statLabel">Jogadas</span>
+                        <span className="Board-statValue">{moves}</span>
+                    </span>
+                    <span className="Board-stat">
+                        <span className="Board-statLabel">Tempo</span>
+                        <span
+                            className="Board-statValue"
+                            role="timer"
+                            aria-label={`Tempo de partida ${formatDuration(elapsedMs)}`}
+                        >
+                            {formatDuration(elapsedMs)}
+                        </span>
+                    </span>
+                </div>
+
+                <p className="sr-only" aria-live="polite" aria-atomic="true">
+                    {announcement}
+                </p>
+
                 {renderGrid()}
 
                 <nav className="Board-footer">
@@ -197,6 +276,8 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             {showWinner && (
                 <WinnerPanel
                     players={players.map((p) => ({ name: p.name, score: p.score }))}
+                    moves={moves}
+                    elapsedMs={elapsedMs}
                     onRestart={resetGame}
                     onNewGame={onExit}
                 />

@@ -11,8 +11,9 @@ Cada jogador tenta encontrar mais pares de cartas do que o adversário.
 - Tabuleiro embaralhado a cada partida, com cartas viradas com animação 3D.
 - Turnos alternados: acertou um par, continua jogando; errou, passa a vez.
 - Placar lateral com pontuação e pares conquistados de cada jogador, destacando quem está jogando.
+- Contador de jogadas e cronômetro da partida (iniciado no primeiro clique e parado no fim do jogo).
 - Feedback visual para pares encontrados e efeitos sonoros de virar carta, acerto e vitória.
-- Painel de fim de jogo com o vencedor (ou empate) e opções para reiniciar ou voltar ao início.
+- Painel de fim de jogo com o vencedor (ou empate), total de jogadas, tempo da partida e opções para reiniciar ou voltar ao início.
 - Layout responsivo para desktop, tablet e celular.
 
 ## Tecnologias
@@ -51,6 +52,7 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm test`           | Roda a suíte de testes (Vitest + Testing Library)                   |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
 
 ## Estrutura do projeto

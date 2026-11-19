@@ -1,13 +1,22 @@
 import React from "react";
+import { formatDuration } from "../../utils/formatTime";
 import "./winnerPanel.css";
 
 type WinnerPanelProps = {
     players: { name: string; score: number }[];
+    moves: number;
+    elapsedMs: number;
     onRestart: () => void;
     onNewGame: () => void;
 };
 
-const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
+const WinnerPanel = ({
+    players,
+    moves,
+    elapsedMs,
+    onRestart,
+    onNewGame,
+}: WinnerPanelProps) => {
     const best = Math.max(...players.map((p) => p.score));
     const winners = players.filter((p) => p.score === best);
     const isDraw = winners.length > 1;
@@ -35,6 +44,19 @@ const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
                         </li>
                     ))}
                 </ul>
+
+                <dl className="WinnerPanel-summary">
+                    <div className="WinnerPanel-summaryItem">
+                        <dt className="WinnerPanel-summaryLabel">Jogadas</dt>
+                        <dd className="WinnerPanel-summaryValue">{moves}</dd>
+                    </div>
+                    <div className="WinnerPanel-summaryItem">
+                        <dt className="WinnerPanel-summaryLabel">Tempo</dt>
+                        <dd className="WinnerPanel-summaryValue">
+                            {formatDuration(elapsedMs)}
+                        </dd>
+                    </div>
+                </dl>
 
                 <div className="WinnerPanel-actions">
                     <button className="Button Button-ghost" onClick={onNewGame}>
