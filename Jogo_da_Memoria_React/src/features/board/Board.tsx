@@ -55,6 +55,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     const [showWinner, setShowWinner] = useState(false);
 
     const timeoutRef = useRef<number | null>(null);
+    const restartButtonRef = useRef<HTMLButtonElement>(null);
 
     const clearPendingTimeout = useCallback(() => {
         if (timeoutRef.current !== null) {
@@ -181,7 +182,11 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     <button className="Button Button-ghost" onClick={onExit}>
                         Voltar
                     </button>
-                    <button className="Button" onClick={resetGame}>
+                    <button
+                        ref={restartButtonRef}
+                        className="Button"
+                        onClick={resetGame}
+                    >
                         Reiniciar
                     </button>
                 </nav>
@@ -199,6 +204,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     players={players.map((p) => ({ name: p.name, score: p.score }))}
                     onRestart={resetGame}
                     onNewGame={onExit}
+                    returnFocusTo={restartButtonRef}
                 />
             )}
         </div>

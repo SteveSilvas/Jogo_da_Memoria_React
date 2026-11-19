@@ -51,6 +51,7 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm test`           | Roda a suíte de testes (Vitest + Testing Library)                   |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
 
 ## Estrutura do projeto

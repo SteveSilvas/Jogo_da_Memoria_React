@@ -19,6 +19,7 @@ npm install
 npm run dev          # servidor de desenvolvimento
 npm run build        # tsc --noEmit && vite build (base "/")
 npm run typecheck
+npm test             # Vitest (jsdom) — componentes e fluxo do Board
 npm run build:pages  # base "/Jogo_da_Memoria_React/" para GitHub Pages
 npm run deploy       # publica no gh-pages
 ```
