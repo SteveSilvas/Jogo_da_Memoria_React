@@ -14,6 +14,8 @@ Cada jogador tenta encontrar mais pares de cartas do que o adversário.
 - Feedback visual para pares encontrados e efeitos sonoros de virar carta, acerto e vitória.
 - Painel de fim de jogo com o vencedor (ou empate) e opções para reiniciar ou voltar ao início.
 - Layout responsivo para desktop, tablet e celular.
+- Partida salva automaticamente no `localStorage`: recarregar a página (F5) restaura o
+  tabuleiro, o placar e a vez exatamente como estavam.
 
 ## Tecnologias
 
@@ -52,6 +54,8 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
+| `npm test`           | Roda a suíte de testes (Vitest) uma vez                             |
+| `npm run test:watch` | Roda os testes em modo watch                                        |
 
 ## Estrutura do projeto
 
@@ -77,7 +81,7 @@ Jogo_da_Memoria_React/                    # raiz do repositório
         │   ├── init/           # Orquestra a troca entre formulário e tabuleiro
         │   ├── initForm/       # Tela inicial (nomes e quantidade de cartas)
         │   └── board/          # Tabuleiro e regras do jogo
-        ├── utils/              # Funções auxiliares (embaralhar, som)
+        ├── utils/              # Funções auxiliares (embaralhar, som, storage)
         ├── App.tsx
         └── main.tsx
 ```
@@ -90,6 +94,18 @@ Jogo_da_Memoria_React/                    # raiz do repositório
    - Se formarem um par, você marca um ponto e joga de novo.
    - Se forem diferentes, elas voltam a ficar viradas para baixo e a vez passa para o outro jogador.
 4. Vence quem conquistar mais pares até que todas as cartas sejam encontradas.
+
+### Retomar uma partida
+
+A partida em andamento é salva sozinha no `localStorage` (chave `jogo-da-memoria:partida`).
+Se a página for recarregada ou o navegador for fechado, o tabuleiro volta como estava.
+
+- **Novo jogo** (no tabuleiro) descarta a partida salva e volta ao início.
+- Ao clicar em **Voltar**, a tela inicial mostra a partida em andamento com as opções
+  **Continuar partida** e **Descartar e começar do zero**.
+- **Reiniciar** embaralha um tabuleiro novo e regrava o estado salvo.
+- Ao terminar a partida o estado salvo é limpo, então um jogo já vencido não reabre.
+- Dados corrompidos ou de versão antiga são descartados em silêncio e um jogo novo começa.
 
 ## Deploy com Docker (Coolify)
 

@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import GameConfigType from "../../@Types/GameConfigType";
+import type { SavedGame } from "../../utils/storage";
 import "./initialForm.css";
 
 type InitialFormProps = {
     onSubmit: (config: GameConfigType) => void;
+    savedGame?: SavedGame | null;
+    onResume?: () => void;
+    onDiscard?: () => void;
 };
 
 const CARD_OPTIONS = [10, 20, 30, 40];
 
-const InitialForm = ({ onSubmit }: InitialFormProps) => {
+const InitialForm = ({ onSubmit, savedGame, onResume, onDiscard }: InitialFormProps) => {
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
     const [amountCards, setAmountCards] = useState(10);
@@ -28,6 +32,41 @@ const InitialForm = ({ onSubmit }: InitialFormProps) => {
                 <p className="StartSubtitle">
                     Encontre todos os pares antes do adversário.
                 </p>
+
+                {savedGame && (
+                    <section className="SavedGame">
+                        <p className="SavedGame-title">Partida em andamento</p>
+                        <p className="SavedGame-detail">
+                            {savedGame.players[0].name} {savedGame.players[0].score} ×{" "}
+                            {savedGame.players[1].score} {savedGame.players[1].name}
+                        </p>
+                        <p className="SavedGame-detail">
+                            {savedGame.amountCards} cartas ·{" "}
+                            {savedGame.cards.filter((card) => card.matched).length / 2} de{" "}
+                            {savedGame.amountCards / 2} pares encontrados
+                        </p>
+                        <div className="SavedGame-actions">
+                            {onResume && (
+                                <button
+                                    className="Button"
+                                    type="button"
+                                    onClick={onResume}
+                                >
+                                    Continuar partida
+                                </button>
+                            )}
+                            {onDiscard && (
+                                <button
+                                    className="Button Button-ghost"
+                                    type="button"
+                                    onClick={onDiscard}
+                                >
+                                    Descartar e começar do zero
+                                </button>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 <form className="StartForm" onSubmit={handleSubmit}>
                     <label className="Field">

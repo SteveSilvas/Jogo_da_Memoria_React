@@ -21,6 +21,8 @@ npm run build        # tsc --noEmit && vite build (base "/")
 npm run typecheck
 npm run build:pages  # base "/Jogo_da_Memoria_React/" para GitHub Pages
 npm run deploy       # publica no gh-pages
+npm test             # vitest run (src/**/*.test.ts, src/**/*.test.tsx)
+npm run test:watch   # vitest em modo watch
 ```
 
 ## Build e deploy (Docker / Coolify)
@@ -41,6 +43,19 @@ npm run deploy       # publica no gh-pages
    falha ("not found") se o Dockerfile mora na subpasta. Mantenha na raiz.
 3. **Placeholders do Coolify** (ex.: `php artisan migrate`, watch path `src/pages/**`,
    custom docker options) são só exemplos de template — não são valores salvos.
+4. **Testes usam Vitest** (`jsdom` + Testing Library). O `vite.config.ts` importa
+   `vitest/config`, o setup fica em `src/test/setup.ts` (silencia o áudio do jsdom) e os
+   testes moram ao lado do código (`src/**/*.test.tsx?`). `npm run build` não roda testes —
+   rode `npm test` antes de abrir PR.
+
+## Persistência da partida
+
+- Chave `jogo-da-memoria:partida`, payload `{ version: 1, ... }`, em `src/utils/storage.ts`.
+- `Board.tsx` grava num único `useEffect` que depende de `cards`, `turn` e `players`; ao
+  vencer, limpa a chave em vez de gravar.
+- `InitMemoryGame.tsx` carrega o jogo salvo no primeiro render e o passa via `initialGame`.
+- `storage.ts` valida o payload inteiro (cartas em pares, placar coerente com as cartas
+  encontradas, partida não vencida) e nunca lança: `localStorage` indisponível vira no-op.
 
 ## Versionamento
 

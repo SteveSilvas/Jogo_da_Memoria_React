@@ -84,3 +84,36 @@
     font-size: 1.1rem;
     font-weight: 700;
 }
+
+.SavedGame {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 16px;
+    border: 1px solid rgba(56, 211, 159, 0.35);
+    background: rgba(56, 211, 159, 0.08);
+}
+
+.SavedGame-title {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #38d39f;
+}
+
+.SavedGame-detail {
+    margin: 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.SavedGame-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}

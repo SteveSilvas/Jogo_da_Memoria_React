@@ -3,6 +3,12 @@ import CardType from "../../@Types/CardType";
 import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
 import { shuffle } from "../../utils/shuffle";
 import { playSound } from "../../utils/sound";
+import type { SavedGame } from "../../utils/storage";
+import {
+    STORAGE_VERSION,
+    clearSavedGame,
+    saveGame,
+} from "../../utils/storage";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
@@ -19,6 +25,8 @@ type BoardProps = {
     player2: string;
     amountCards: number;
     onExit: () => void;
+    onNewGame: () => void;
+    initialGame?: SavedGame | null;
 };
 
 type Player = { name: string; score: number; pairs: string[] };
@@ -39,17 +47,52 @@ const buildDeck = (amountCards: number): CardType[] => {
     return shuffle(deck);
 };
 
+const restoreDeck = (game: SavedGame): CardType[] =>
+    game.cards.map(({ id, face, matched }) => ({
+        id,
+        face,
+        back: CARD_BACK,
+        flipped: matched,
+        matched,
+    }));
+
+const initialCards = (game: SavedGame | null | undefined, amountCards: number): CardType[] =>
+    game ? restoreDeck(game) : buildDeck(amountCards);
+
 const initialPlayers = (player1: string, player2: string): [Player, Player] => [
     { name: player1, score: 0, pairs: [] },
     { name: player2, score: 0, pairs: [] },
 ];
 
-const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
-    const [cards, setCards] = useState<CardType[]>(() => buildDeck(amountCards));
+const toSavedGame = (
+    amountCards: number,
+    cards: CardType[],
+    turn: 0 | 1,
+    players: [Player, Player],
+): SavedGame => ({
+    version: STORAGE_VERSION,
+    amountCards,
+    cards: cards.map(({ id, face, matched }) => ({ id, face, matched })),
+    turn,
+    players: [
+        { name: players[0].name, score: players[0].score, pairs: [...players[0].pairs] },
+        { name: players[1].name, score: players[1].score, pairs: [...players[1].pairs] },
+    ],
+});
+
+const Board = ({ player1, player2, amountCards, onExit, onNewGame, initialGame }: BoardProps) => {
+    const [cards, setCards] = useState<CardType[]>(() =>
+        initialCards(initialGame, amountCards),
+    );
     const [selected, setSelected] = useState<number[]>([]);
-    const [turn, setTurn] = useState<0 | 1>(0);
+    const [turn, setTurn] = useState<0 | 1>(() => initialGame?.turn ?? 0);
     const [players, setPlayers] = useState<[Player, Player]>(() =>
-        initialPlayers(player1, player2),
+        initialGame
+            ? [
+                  { ...initialGame.players[0], pairs: [...initialGame.players[0].pairs] },
+                  { ...initialGame.players[1], pairs: [...initialGame.players[1].pairs] },
+              ]
+            : initialPlayers(player1, player2),
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
@@ -136,12 +179,24 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         [cards, isLocked, selected, turn],
     );
 
+    const isFinished = useMemo(
+        () => cards.length > 0 && cards.every((c) => c.matched),
+        [cards],
+    );
+
     useEffect(() => {
-        if (cards.length > 0 && cards.every((c) => c.matched)) {
-            playSound(WIN_SOUND, 0.45);
-            setShowWinner(true);
+        if (!isFinished) return;
+        playSound(WIN_SOUND, 0.45);
+        setShowWinner(true);
+    }, [isFinished]);
+
+    useEffect(() => {
+        if (isFinished) {
+            clearSavedGame();
+            return;
         }
-    }, [cards]);
+        saveGame(toSavedGame(amountCards, cards, turn, players));
+    }, [amountCards, cards, turn, players, isFinished]);
 
     const renderGrid = () => (
         <div className={`Board-grid ${sizeClassFor(amountCards)}`}>
@@ -180,6 +235,9 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 <nav className="Board-footer">
                     <button className="Button Button-ghost" onClick={onExit}>
                         Voltar
+                    </button>
+                    <button className="Button Button-ghost" onClick={onNewGame}>
+                        Novo jogo
                     </button>
                     <button className="Button" onClick={resetGame}>
                         Reiniciar
