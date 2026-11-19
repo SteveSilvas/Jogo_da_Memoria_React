@@ -1,4 +1,5 @@
 import CardType from "../@Types/CardType";
+import { GameMode } from "../@Types/GameConfigType";
 import { CARD_BACK } from "../data/cardFaces";
 
 export const GAME_STORAGE_KEY = "jogo-da-memoria:partida";
@@ -7,6 +8,8 @@ const VERSION = 1;
 export type StoredPlayer = { name: string; score: number; pairs: string[] };
 
 export type StoredGame = {
+    /** Ausente em registros antigos equivale a dois jogadores. */
+    mode?: GameMode;
     cards: CardType[];
     selected: number[];
     turn: 0 | 1;
@@ -76,6 +79,14 @@ const isSavedGame = (value: unknown): value is Payload => {
     }
     if (amountCards !== cards.length) return false;
 
+    if (
+        value.mode !== undefined &&
+        value.mode !== "two-players" &&
+        value.mode !== "single-player"
+    ) {
+        return false;
+    }
+
     return true;
 };
 
@@ -103,6 +114,7 @@ export const loadGame = (): StoredGame | null => {
         }
 
         return {
+            mode: parsed.mode,
             cards: normalizeCards(parsed.cards as CardType[]),
             selected: parsed.selected,
             turn: parsed.turn,

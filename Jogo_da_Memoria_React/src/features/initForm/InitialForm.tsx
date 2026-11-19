@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import GameConfigType from "../../@Types/GameConfigType";
+import GameConfigType, { GameMode } from "../../@Types/GameConfigType";
 import { loadGame, clearGame } from "../../utils/gameStorage";
 import { formatDuration } from "../../utils/time";
 import "./initialForm.css";
@@ -12,11 +12,29 @@ type InitialFormProps = {
 
 const CARD_OPTIONS = [10, 20, 30, 40];
 
+const COMPUTER_NAME = "Computador";
+
+const MODES: { value: GameMode; label: string; hint: string }[] = [
+    {
+        value: "two-players",
+        label: "2 jogadores",
+        hint: "Você e outra pessoa no mesmo aparelho.",
+    },
+    {
+        value: "single-player",
+        label: "1 jogador",
+        hint: `Jogue contra o ${COMPUTER_NAME}.`,
+    },
+];
+
 const InitialForm = ({ onSubmit, onResume }: InitialFormProps) => {
     const [saved, setSaved] = useState(() => loadGame());
+    const [mode, setMode] = useState<GameMode>("two-players");
     const [player1, setPlayer1] = useState("");
     const [player2, setPlayer2] = useState("");
     const [amountCards, setAmountCards] = useState(10);
+
+    const solo = mode === "single-player";
 
     const savedSummary = useMemo(() => {
         if (!saved) return null;
@@ -35,6 +53,7 @@ const InitialForm = ({ onSubmit, onResume }: InitialFormProps) => {
             player1: saved.players[0].name,
             player2: saved.players[1].name,
             amountCards: saved.amountCards,
+            mode: saved.mode,
         });
     };
 
@@ -46,9 +65,12 @@ const InitialForm = ({ onSubmit, onResume }: InitialFormProps) => {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const name1 = player1.trim();
-        const name2 = player2.trim();
-        if (!name1 || !name2) return;
-        onSubmit({ player1: name1, player2: name2, amountCards });
+        if (!name1) return;
+
+        const name2 = solo ? COMPUTER_NAME : player2.trim();
+        if (!name2) return;
+
+        onSubmit({ player1: name1, player2: name2, amountCards, mode });
     };
 
     return (
@@ -90,6 +112,32 @@ const InitialForm = ({ onSubmit, onResume }: InitialFormProps) => {
                 )}
 
                 <form className="StartForm" onSubmit={handleSubmit}>
+                    <fieldset className="ModeGroup">
+                        <legend className="Field-label">Modo de jogo</legend>
+                        <div className="ModeOptions">
+                            {MODES.map((option) => (
+                                <label
+                                    key={option.value}
+                                    className={`ModeOption${mode === option.value ? " is-selected" : ""}`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="mode"
+                                        value={option.value}
+                                        checked={mode === option.value}
+                                        onChange={() => setMode(option.value)}
+                                    />
+                                    <span className="ModeOption-label">
+                                        {option.label}
+                                    </span>
+                                    <span className="ModeOption-hint">
+                                        {option.hint}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+
                     <label className="Field">
                         <span className="Field-label">Jogador(a) 1</span>
                         <input
@@ -103,18 +151,24 @@ const InitialForm = ({ onSubmit, onResume }: InitialFormProps) => {
                         />
                     </label>
 
-                    <label className="Field">
-                        <span className="Field-label">Jogador(a) 2</span>
-                        <input
-                            className="Field-input"
-                            type="text"
-                            value={player2}
-                            maxLength={24}
-                            placeholder="Nome do jogador 2"
-                            onChange={(e) => setPlayer2(e.target.value)}
-                            required
-                        />
-                    </label>
+                    {solo ? (
+                        <p className="Field-soloNote">
+                            Seu adversário será o <strong>{COMPUTER_NAME}</strong>.
+                        </p>
+                    ) : (
+                        <label className="Field">
+                            <span className="Field-label">Jogador(a) 2</span>
+                            <input
+                                className="Field-input"
+                                type="text"
+                                value={player2}
+                                maxLength={24}
+                                placeholder="Nome do jogador 2"
+                                onChange={(e) => setPlayer2(e.target.value)}
+                                required
+                            />
+                        </label>
+                    )}
 
                     <label className="Field">
                         <span className="Field-label">Quantidade de cartas</span>

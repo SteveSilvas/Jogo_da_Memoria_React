@@ -104,6 +104,70 @@ describe("InitialForm: partida salva", () => {
             player1: "Carla",
             player2: "Davi",
             amountCards: 10,
+            mode: "two-players",
         });
+    });
+});
+
+describe("InitialForm: modo de jogo", () => {
+    beforeEach(() => {
+        window.localStorage.clear();
+    });
+
+    it("comeca em 2 jogadores, com os dois campos de nome", () => {
+        render(<InitialForm onSubmit={vi.fn()} onResume={vi.fn()} />);
+
+        expect(screen.getAllByRole("textbox")).toHaveLength(2);
+        expect(screen.getByRole("radio", { name: /2 jogadores/i })).toBeChecked();
+    });
+
+    it("esconde o nome do jogador 2 no modo 1 jogador", async () => {
+        const user = userEvent.setup();
+        render(<InitialForm onSubmit={vi.fn()} onResume={vi.fn()} />);
+
+        await user.click(screen.getByRole("radio", { name: /1 jogador/i }));
+
+        expect(screen.getAllByRole("textbox")).toHaveLength(1);
+        expect(
+            document.querySelector(".Field-soloNote")?.textContent,
+        ).toContain("Computador");
+    });
+
+    it("envia o computador como adversario no modo 1 jogador", async () => {
+        const user = userEvent.setup();
+        const onSubmit = vi.fn();
+        render(<InitialForm onSubmit={onSubmit} onResume={vi.fn()} />);
+
+        await user.click(screen.getByRole("radio", { name: /1 jogador/i }));
+        await user.type(screen.getByRole("textbox"), "Ana");
+        await user.click(screen.getByRole("button", { name: "Jogar" }));
+
+        expect(onSubmit).toHaveBeenCalledWith({
+            player1: "Ana",
+            player2: "Computador",
+            amountCards: 10,
+            mode: "single-player",
+        });
+    });
+
+    it("nao envia nada sem o nome do jogador 1", async () => {
+        const user = userEvent.setup();
+        const onSubmit = vi.fn();
+        render(<InitialForm onSubmit={onSubmit} onResume={vi.fn()} />);
+
+        await user.click(screen.getByRole("radio", { name: /1 jogador/i }));
+        await user.click(screen.getByRole("button", { name: "Jogar" }));
+
+        expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it("volta a exigir o nome do jogador 2 ao trocar de modo", async () => {
+        const user = userEvent.setup();
+        render(<InitialForm onSubmit={vi.fn()} onResume={vi.fn()} />);
+
+        await user.click(screen.getByRole("radio", { name: /1 jogador/i }));
+        await user.click(screen.getByRole("radio", { name: /2 jogadores/i }));
+
+        expect(screen.getAllByRole("textbox")).toHaveLength(2);
     });
 });

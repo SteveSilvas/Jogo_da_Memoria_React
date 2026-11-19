@@ -13,6 +13,12 @@ import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import SoundToggle from "../../components/SoundToggle/SoundToggle";
 import { useGameTimer } from "../../hooks/useGameTimer";
+import {
+    chooseMove,
+    freeCardIds,
+    rememberRevealed,
+    type ComputerMemory,
+} from "../../utils/computerPlayer";
 import { formatDuration } from "../../utils/time";
 import {
     clearGame,
@@ -28,11 +34,14 @@ const FLIP_SOUND = new URL("../../assets/songs/transition.mp3", import.meta.url)
 const WIN_SOUND = new URL("../../assets/songs/ES_PREL Glitch 15 - SFX Producer.mp3", import.meta.url).href;
 
 const MATCH_DELAY = 900;
+const COMPUTER_DELAY = 750;
 
 type BoardProps = {
     player1: string;
     player2: string;
     amountCards: number;
+    /** O jogador 2 e controlado pelo computador. */
+    computerOpponent?: boolean;
     /** Retoma a partida salva, quando os jogadores e o tamanho conferem. */
     restoreSaved?: boolean;
     onExit: () => void;
@@ -68,6 +77,7 @@ const Board = ({
     player1,
     player2,
     amountCards,
+    computerOpponent = false,
     restoreSaved,
     onExit,
 }: BoardProps) => {
@@ -99,6 +109,15 @@ const Board = ({
     } = useGameTimer(restored?.seconds ?? 0);
 
     const timeoutRef = useRef<number | null>(null);
+    const memoryRef = useRef<ComputerMemory>(new Map());
+    const computerTimersRef = useRef<number[]>([]);
+
+    const clearComputerTimers = useCallback(() => {
+        for (const id of computerTimersRef.current) window.clearTimeout(id);
+        computerTimersRef.current = [];
+    }, []);
+
+    useEffect(() => clearComputerTimers, [clearComputerTimers]);
 
     const clearPendingTimeout = useCallback(() => {
         if (timeoutRef.current !== null) {
@@ -120,23 +139,52 @@ const Board = ({
         setShowWinner(false);
         setAnnouncement("");
         setMoves(0);
+        memoryRef.current = new Map();
+        clearComputerTimers();
         resetTimer();
-    }, [amountCards, player1, player2, clearPendingTimeout, resetTimer]);
+    }, [
+        amountCards,
+        player1,
+        player2,
+        clearPendingTimeout,
+        clearComputerTimers,
+        resetTimer,
+    ]);
 
     const totalPairs = useMemo(() => Math.floor(amountCards / 2), [amountCards]);
 
-    const handleSelect = useCallback(
-        (card: CardType) => {
-            if (isLocked || selected.length >= 2) return;
-            if (card.matched || card.flipped) return;
+    // O computador so memoriza cartas que estiveram abertas no tabuleiro.
+    useEffect(() => {
+        if (!computerOpponent) return;
+        rememberRevealed(memoryRef.current, cards);
+    }, [cards, computerOpponent]);
+
+    // Espelho sincrono do estado: o computador joga em sequencia (duas cartas
+    // com atraso entre elas), entao precisa ler o resultado do primeiro flip
+    // antes do segundo, sem esperar o re-render.
+    const stateRef = useRef({ cards, selected, turn, players, isLocked });
+    stateRef.current = { cards, selected, turn, players, isLocked };
+
+    const revealCard = useCallback(
+        (cardId: number, owner: 0 | 1) => {
+            const snap = stateRef.current;
+            if (snap.isLocked || snap.selected.length >= 2) return;
+
+            const card = snap.cards.find((c) => c.id === cardId);
+            if (!card || card.matched || card.flipped) return;
 
             playSound(FLIP_SOUND, 0.35);
-            const nextSelected = [...selected, card.id];
-            setCards((prev) =>
-                prev.map((c) => (c.id === card.id ? { ...c, flipped: true } : c)),
+            const nextCards = snap.cards.map((c) =>
+                c.id === cardId ? { ...c, flipped: true } : c,
             );
+            const nextSelected = [...snap.selected, cardId];
+            stateRef.current = {
+                ...snap,
+                cards: nextCards,
+                selected: nextSelected,
+            };
+            setCards(nextCards);
             setSelected(nextSelected);
-
             startTimer();
 
             if (nextSelected.length < 2) return;
@@ -144,53 +192,108 @@ const Board = ({
             setMoves((prev) => prev + 1);
 
             const [firstId, secondId] = nextSelected;
-            const first = cards.find((c) => c.id === firstId);
-            const second = cards.find((c) => c.id === secondId);
+            const first = nextCards.find((c) => c.id === firstId);
+            const second = nextCards.find((c) => c.id === secondId);
             if (!first || !second) return;
+
+            const ownerName = snap.players[owner].name;
 
             if (isMatch(first, second)) {
                 playSound(MATCH_SOUND, 0.5);
-                setCards((prev) =>
-                    prev.map((c) =>
-                        c.id === firstId || c.id === secondId
-                            ? { ...c, matched: true, flipped: true }
-                            : c,
-                    ),
+                const matchedCards = nextCards.map((c) =>
+                    c.id === firstId || c.id === secondId
+                        ? { ...c, matched: true, flipped: true }
+                        : c,
                 );
-                setPlayers((prev) => {
-                    const updated: [Player, Player] = [
-                        { ...prev[0], pairs: [...prev[0].pairs] },
-                        { ...prev[1], pairs: [...prev[1].pairs] },
-                    ];
-                    updated[turn].score += 1;
-                    updated[turn].pairs.push(first.face);
-                    return updated;
-                });
+                const nextPlayers: [Player, Player] = [
+                    { ...snap.players[0], pairs: [...snap.players[0].pairs] },
+                    { ...snap.players[1], pairs: [...snap.players[1].pairs] },
+                ];
+                nextPlayers[owner].score += 1;
+                nextPlayers[owner].pairs.push(first.face);
+
+                stateRef.current = {
+                    ...stateRef.current,
+                    cards: matchedCards,
+                    selected: [],
+                    players: nextPlayers,
+                };
+                setCards(matchedCards);
+                setPlayers(nextPlayers);
                 setSelected([]);
-                setAnnouncement(`Par encontrado! ${players[turn].name} joga de novo.`);
+                setAnnouncement(`Par encontrado! ${ownerName} joga de novo.`);
                 return;
             }
 
+            stateRef.current = { ...stateRef.current, isLocked: true };
             setIsLocked(true);
             timeoutRef.current = window.setTimeout(() => {
-                setCards((prev) =>
-                    prev.map((c) =>
+                setCards((prev) => {
+                    const hidden = prev.map((c) =>
                         c.id === firstId || c.id === secondId
                             ? { ...c, flipped: false }
                             : c,
-                    ),
-                );
+                    );
+                    stateRef.current = {
+                        ...stateRef.current,
+                        cards: hidden,
+                        selected: [],
+                        turn: nextTurn(owner),
+                        isLocked: false,
+                    };
+                    return hidden;
+                });
                 setSelected([]);
-                setTurn((prev) => nextTurn(prev));
+                setTurn(nextTurn(owner));
                 setIsLocked(false);
                 setAnnouncement(
-                    `Carta nao e um par. Agora e a vez de ${players[nextTurn(turn)].name}.`,
+                    `Carta nao e um par. Agora e a vez de ${snap.players[nextTurn(owner)].name}.`,
                 );
                 timeoutRef.current = null;
             }, MATCH_DELAY);
         },
-        [cards, isLocked, selected, turn],
+        [startTimer],
     );
+
+    const handleSelect = useCallback(
+        (card: CardType) => {
+            if (computerOpponent && turn === 1) return;
+            revealCard(card.id, turn);
+        },
+        [computerOpponent, revealCard, turn],
+    );
+
+    // Vez do computador: espera um instante, vira a primeira carta, espera de
+    // novo e vira a segunda, para dar tempo de acompanhar a jogada.
+    useEffect(() => {
+        if (!computerOpponent || showWinner) return;
+        if (turn !== 1 || isLocked || selected.length > 0) return;
+
+        const plan = chooseMove(memoryRef.current, freeCardIds(cards));
+        if (!plan) return;
+
+        const timers: number[] = [];
+        timers.push(
+            window.setTimeout(() => {
+                revealCard(plan[0], 1);
+                timers.push(
+                    window.setTimeout(() => revealCard(plan[1], 1), COMPUTER_DELAY),
+                );
+            }, COMPUTER_DELAY),
+        );
+
+        // Os timers vivem em ref para o cleanup nao cancelar a segunda carta
+        // quando o primeiro flip muda o estado.
+        computerTimersRef.current.push(...timers);
+    }, [
+        computerOpponent,
+        showWinner,
+        turn,
+        isLocked,
+        selected.length,
+        cards,
+        revealCard,
+    ]);
 
     useEffect(() => {
         if (isGameOver(cards)) {
