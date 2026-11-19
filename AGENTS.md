@@ -19,9 +19,24 @@ npm install
 npm run dev          # servidor de desenvolvimento
 npm run build        # tsc --noEmit && vite build (base "/")
 npm run typecheck
+npm run test         # node --test: imagens locais + build offline
 npm run build:pages  # base "/Jogo_da_Memoria_React/" para GitHub Pages
 npm run deploy       # publica no gh-pages
 ```
+
+## Imagens das cartas
+
+- As 21 faces ficam em `Jogo_da_Memoria_React/src/assets/cards/card-NN.webp`
+  (512×512, WebP q82, ~470 KB no total). `src/data/cardFaces.ts` só importa esses
+  arquivos — **nunca reintroduza hotlink** de freepik/ftcdn/dooca. O teste
+  `tests/cardAssets.test.mjs` falha se aparecer URL externa.
+- A origem e o licenciamento de cada arquivo estão em
+  `src/assets/cards/CREDITS.md`; o README aponta para lá.
+- Offline: `public/sw.js` pré-carrega os arquivos listados em
+  `dist/precache-manifest.json`, gerado pelo plugin `precacheManifest` em
+  `vite.config.ts`. O registro acontece só em produção (`import.meta.env.PROD`)
+  para não quebrar o HMR. Se adicionar um asset novo que precisa funcionar
+  offline, ele entra no manifesto automaticamente (é gerado a partir do bundle).
 
 ## Build e deploy (Docker / Coolify)
 
@@ -41,6 +56,10 @@ npm run deploy       # publica no gh-pages
    falha ("not found") se o Dockerfile mora na subpasta. Mantenha na raiz.
 3. **Placeholders do Coolify** (ex.: `php artisan migrate`, watch path `src/pages/**`,
    custom docker options) são só exemplos de template — não são valores salvos.
+4. **`sw.js` e `precache-manifest.json` precisam de `no-cache`.** O `nginx.conf` serve
+   `/assets/` como `immutable` por 1 ano; se o service worker cair nesse cache o
+   navegador fica preso numa versão antiga do jogo. Por isso existem `location = /sw.js`
+   e `location = /precache-manifest.json` com `Cache-Control: no-cache`.
 
 ## Versionamento
 
