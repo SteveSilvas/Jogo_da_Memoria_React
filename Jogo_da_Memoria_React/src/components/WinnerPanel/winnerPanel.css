@@ -95,3 +95,15 @@
         transform: translateY(0) scale(1);
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .WinnerOverlay,
+    .WinnerPanel {
+        animation: none;
+    }
+
+    .WinnerOverlay {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}

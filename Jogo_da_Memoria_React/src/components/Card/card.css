@@ -18,6 +18,16 @@
     transform: translateY(-4px);
 }
 
+/* Two-tone ring: a dark halo separates the amber outline from the card edge,
+   so the ring stays legible over both faces and the board background. */
+.Card:focus-visible {
+    outline: 3px solid #ffd166;
+    outline-offset: 2px;
+    border-radius: 14px;
+    box-shadow: 0 0 0 6px rgba(5, 6, 26, 0.92);
+    z-index: 1;
+}
+
 .Card-inner {
     position: absolute;
     inset: 0;
@@ -103,5 +113,20 @@
     }
     100% {
         transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .Card,
+    .Card-inner {
+        transition: none;
+    }
+
+    .Card:not(:disabled):hover {
+        transform: none;
+    }
+
+    .Card.is-matched {
+        animation: none;
     }
 }
