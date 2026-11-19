@@ -1,7 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardType from "../../@Types/CardType";
-import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
-import { shuffle } from "../../utils/shuffle";
+import { CARD_BACK } from "../../data/cardFaces";
+import {
+    buildDeck,
+    countMatchedPairs,
+    isGameOver,
+    isMatch,
+    nextTurn,
+} from "../../utils/gameRules";
 import { playSound } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
@@ -25,19 +31,6 @@ type Player = { name: string; score: number; pairs: string[] };
 
 const sizeClassFor = (amountCards: number): string =>
     `grid-${amountCards}`;
-
-const buildDeck = (amountCards: number): CardType[] => {
-    const pairs = Math.floor(amountCards / 2);
-    const faces = CARD_FACES.slice(0, pairs);
-    const deck = [...faces, ...faces].map((face, id) => ({
-        id,
-        face,
-        back: CARD_BACK,
-        flipped: false,
-        matched: false,
-    }));
-    return shuffle(deck);
-};
 
 const initialPlayers = (player1: string, player2: string): [Player, Player] => [
     { name: player1, score: 0, pairs: [] },
@@ -96,7 +89,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             const second = cards.find((c) => c.id === secondId);
             if (!first || !second) return;
 
-            if (first.face === second.face) {
+            if (isMatch(first, second)) {
                 playSound(MATCH_SOUND, 0.5);
                 setCards((prev) =>
                     prev.map((c) =>
@@ -128,7 +121,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     ),
                 );
                 setSelected([]);
-                setTurn((prev) => (prev === 0 ? 1 : 0));
+                setTurn((prev) => nextTurn(prev));
                 setIsLocked(false);
                 timeoutRef.current = null;
             }, MATCH_DELAY);
@@ -137,7 +130,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     );
 
     useEffect(() => {
-        if (cards.length > 0 && cards.every((c) => c.matched)) {
+        if (isGameOver(cards)) {
             playSound(WIN_SOUND, 0.45);
             setShowWinner(true);
         }
@@ -172,7 +165,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 </h2>
                 <p className="Board-progress">
                     {totalPairs} pares ·{" "}
-                    {cards.filter((c) => c.matched).length / 2} encontrados
+                    {countMatchedPairs(cards)} encontrados
                 </p>
 
                 {renderGrid()}
