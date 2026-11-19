@@ -86,12 +86,12 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
 
         const twin = buttons.find(
             (button, index) =>
                 index > 0 &&
-                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+                button.getAttribute("data-face") === faceA,
         );
         expect(twin).toBeDefined();
         await user.click(twin!);
@@ -111,10 +111,10 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const other = buttons.find(
             (button) =>
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
 
         await user.click(other);
@@ -137,10 +137,10 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const other = buttons.find(
             (button) =>
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
         await user.click(other);
 
@@ -148,7 +148,7 @@ describe("Board", () => {
             (button) =>
                 button !== buttons[0] &&
                 button !== other &&
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
         expect(third).toBeDisabled();
 
@@ -172,11 +172,11 @@ describe("Board", () => {
             );
             if (buttons.length < 2) break;
             const first = buttons[0];
-            const faceA = first.querySelectorAll("img")[1]?.getAttribute("src");
+            const faceA = first.getAttribute("data-face");
             const twin = buttons.find(
                 (button) =>
                     button !== first &&
-                    button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+                    button.getAttribute("data-face") === faceA,
             );
             if (!twin) break;
             await user.click(first);
@@ -197,11 +197,11 @@ describe("Board", () => {
 
         const buttons = cardButtons();
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const twin = buttons.find(
             (button, index) =>
                 index > 0 &&
-                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+                button.getAttribute("data-face") === faceA,
         )!;
         await user.click(twin);
         await waitFor(() => expect(twin).toHaveClass("is-matched"));
@@ -242,10 +242,10 @@ describe("Board", () => {
 
         const buttons = cardButtons();
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const other = buttons.find(
             (button) =>
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
         await user.click(other);
 
@@ -263,11 +263,11 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const twin = buttons.find(
             (button, index) =>
                 index > 0 &&
-                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+                button.getAttribute("data-face") === faceA,
         )!;
         await user.click(twin);
 
@@ -282,11 +282,11 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const twin = buttons.find(
             (button, index) =>
                 index > 0 &&
-                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+                button.getAttribute("data-face") === faceA,
         )!;
         await user.click(twin);
 
@@ -304,10 +304,10 @@ describe("Board", () => {
         await user.click(buttons[0]);
         expect(movesValue()).toBe("0");
 
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const other = buttons.find(
             (button) =>
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
         await user.click(other);
 
@@ -335,10 +335,10 @@ describe("Board", () => {
         const buttons = cardButtons();
 
         await user.click(buttons[0]);
-        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const faceA = buttons[0].getAttribute("data-face");
         const other = buttons.find(
             (button) =>
-                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+                button.getAttribute("data-face") !== faceA,
         )!;
         await user.click(other);
         await waitFor(() => expect(movesValue()).toBe("1"));
