@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Board from "./Board";
 
+vi.mock("../../utils/sound", () => ({ playSound: vi.fn() }));
+
 const MATCH_DELAY = 900;
 
 const renderBoard = (amountCards = 10) => {
