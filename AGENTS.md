@@ -19,9 +19,23 @@ npm install
 npm run dev          # servidor de desenvolvimento
 npm run build        # tsc --noEmit && vite build (base "/")
 npm run typecheck
+npm test             # Vitest, execução única
+npm run test:watch   # Vitest em modo watch
 npm run build:pages  # base "/Jogo_da_Memoria_React/" para GitHub Pages
 npm run deploy       # publica no gh-pages
 ```
+
+## Testes
+
+- Vitest + Testing Library em `jsdom`; configuração em `vitest.config.ts`, setup em `src/test/setup.ts`.
+- As regras puras ficam em `src/utils/` (`deck.ts`, `gameRules.ts`) justamente para testar sem DOM.
+  Ao mexer em `Board.tsx`, prefira mover regra nova para `src/utils/gameRules.ts` e testá-la lá.
+- `src/test/setup.ts` bloqueia `fetch`/`XMLHttpRequest` e os testes mockam `playSound`: nenhum teste
+  acessa a rede nem toca áudio.
+- Em testes de componente com `MATCH_DELAY` (900ms), use `vi.useFakeTimers({ shouldAdvanceTime: true })`
+  — sem `shouldAdvanceTime` o `user-event` trava e o teste estoura o timeout.
+- Não use snapshot tests; valide comportamento.
+- CI em `.github/workflows/ci.yml` roda `typecheck` + `test` em push/PR.
 
 ## Build e deploy (Docker / Coolify)
 

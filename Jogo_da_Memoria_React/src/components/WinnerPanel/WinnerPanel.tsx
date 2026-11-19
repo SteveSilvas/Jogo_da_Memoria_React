@@ -1,4 +1,5 @@
 import React from "react";
+import { isDraw } from "../../utils/gameRules";
 import "./winnerPanel.css";
 
 type WinnerPanelProps = {
@@ -10,21 +11,19 @@ type WinnerPanelProps = {
 const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
     const best = Math.max(...players.map((p) => p.score));
     const winners = players.filter((p) => p.score === best);
-    const isDraw = winners.length > 1;
+    const draw = isDraw(players);
 
-    const headline = isDraw
-        ? "Empate!"
-        : `Parabéns, ${winners[0].name}!`;
+    const headline = draw ? "Empate!" : `Parabéns, ${winners[0].name}!`;
 
     return (
         <div className="WinnerOverlay" role="dialog" aria-modal="true">
             <div className="WinnerPanel">
                 <p className="WinnerPanel-emoji" aria-hidden="true">
-                    {isDraw ? "🤝" : "🏆"}
+                    {draw ? "🤝" : "🏆"}
                 </p>
                 <h2 className="WinnerPanel-title">{headline}</h2>
                 <p className="WinnerPanel-subtitle">
-                    {isDraw ? "Ninguém venceu desta vez" : "você venceu o jogo!"}
+                    {draw ? "Ninguém venceu desta vez" : "você venceu o jogo!"}
                 </p>
 
                 <ul className="WinnerPanel-scores">

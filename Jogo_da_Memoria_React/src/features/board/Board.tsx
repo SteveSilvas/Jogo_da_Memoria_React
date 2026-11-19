@@ -1,7 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CardType from "../../@Types/CardType";
-import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
-import { shuffle } from "../../utils/shuffle";
+import { CARD_BACK } from "../../data/cardFaces";
+import { buildDeck } from "../../utils/deck";
+import {
+    hideCards,
+    initialPlayers,
+    isBoardComplete,
+    nextTurn,
+    Player,
+    resolveSelection,
+    revealCards,
+    Turn,
+} from "../../utils/gameRules";
 import { playSound } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
@@ -21,33 +31,13 @@ type BoardProps = {
     onExit: () => void;
 };
 
-type Player = { name: string; score: number; pairs: string[] };
-
 const sizeClassFor = (amountCards: number): string =>
     `grid-${amountCards}`;
-
-const buildDeck = (amountCards: number): CardType[] => {
-    const pairs = Math.floor(amountCards / 2);
-    const faces = CARD_FACES.slice(0, pairs);
-    const deck = [...faces, ...faces].map((face, id) => ({
-        id,
-        face,
-        back: CARD_BACK,
-        flipped: false,
-        matched: false,
-    }));
-    return shuffle(deck);
-};
-
-const initialPlayers = (player1: string, player2: string): [Player, Player] => [
-    { name: player1, score: 0, pairs: [] },
-    { name: player2, score: 0, pairs: [] },
-];
 
 const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     const [cards, setCards] = useState<CardType[]>(() => buildDeck(amountCards));
     const [selected, setSelected] = useState<number[]>([]);
-    const [turn, setTurn] = useState<0 | 1>(0);
+    const [turn, setTurn] = useState<Turn>(0);
     const [players, setPlayers] = useState<[Player, Player]>(() =>
         initialPlayers(player1, player2),
     );
@@ -84,60 +74,36 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
 
             playSound(FLIP_SOUND, 0.35);
             const nextSelected = [...selected, card.id];
-            setCards((prev) =>
-                prev.map((c) => (c.id === card.id ? { ...c, flipped: true } : c)),
-            );
+            setCards((prev) => revealCards(prev, [card.id]));
             setSelected(nextSelected);
 
             if (nextSelected.length < 2) return;
 
-            const [firstId, secondId] = nextSelected;
-            const first = cards.find((c) => c.id === firstId);
-            const second = cards.find((c) => c.id === secondId);
-            if (!first || !second) return;
+            const ids: [number, number] = [nextSelected[0], nextSelected[1]];
+            const outcome = resolveSelection(cards, ids, players, turn);
 
-            if (first.face === second.face) {
+            if (outcome.kind === "match") {
                 playSound(MATCH_SOUND, 0.5);
-                setCards((prev) =>
-                    prev.map((c) =>
-                        c.id === firstId || c.id === secondId
-                            ? { ...c, matched: true, flipped: true }
-                            : c,
-                    ),
-                );
-                setPlayers((prev) => {
-                    const updated: [Player, Player] = [
-                        { ...prev[0], pairs: [...prev[0].pairs] },
-                        { ...prev[1], pairs: [...prev[1].pairs] },
-                    ];
-                    updated[turn].score += 1;
-                    updated[turn].pairs.push(first.face);
-                    return updated;
-                });
+                setCards(outcome.cards);
+                setPlayers(outcome.players);
                 setSelected([]);
                 return;
             }
 
             setIsLocked(true);
             timeoutRef.current = window.setTimeout(() => {
-                setCards((prev) =>
-                    prev.map((c) =>
-                        c.id === firstId || c.id === secondId
-                            ? { ...c, flipped: false }
-                            : c,
-                    ),
-                );
+                setCards((prev) => hideCards(prev, ids));
                 setSelected([]);
-                setTurn((prev) => (prev === 0 ? 1 : 0));
+                setTurn((prev) => nextTurn(prev));
                 setIsLocked(false);
                 timeoutRef.current = null;
             }, MATCH_DELAY);
         },
-        [cards, isLocked, selected, turn],
+        [cards, isLocked, players, selected, turn],
     );
 
     useEffect(() => {
-        if (cards.length > 0 && cards.every((c) => c.matched)) {
+        if (isBoardComplete(cards)) {
             playSound(WIN_SOUND, 0.45);
             setShowWinner(true);
         }

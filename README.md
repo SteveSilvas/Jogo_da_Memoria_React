@@ -51,6 +51,8 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm test`           | Roda a suíte de testes uma vez (Vitest)                             |
+| `npm run test:watch` | Roda os testes em modo watch durante o desenvolvimento              |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
 
 ## Estrutura do projeto
@@ -77,10 +79,37 @@ Jogo_da_Memoria_React/                    # raiz do repositório
         │   ├── init/           # Orquestra a troca entre formulário e tabuleiro
         │   ├── initForm/       # Tela inicial (nomes e quantidade de cartas)
         │   └── board/          # Tabuleiro e regras do jogo
-        ├── utils/              # Funções auxiliares (embaralhar, som)
+        ├── utils/              # Funções auxiliares e regras puras do jogo
+        │   ├── deck.ts         # Montagem do baralho
+        │   ├── gameRules.ts    # Regras: par, pontuação, turno, vitória, empate
+        │   ├── shuffle.ts      # Embaralhamento
+        │   └── sound.ts        # Efeitos sonoros
+        ├── test/               # Configuração compartilhada dos testes
         ├── App.tsx
         └── main.tsx
 ```
+
+## Testes
+
+A suíte usa [Vitest](https://vitest.dev/) com [Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
+em ambiente `jsdom`:
+
+```bash
+cd Jogo_da_Memoria_React
+npm test            # roda uma vez
+npm run test:watch  # modo watch
+```
+
+O que está coberto:
+
+- `src/utils/shuffle.test.ts` — embaralhamento preserva todos os elementos e não altera a lista original.
+- `src/utils/deck.test.ts` — `buildDeck` cria o número certo de cartas, duplica cada face e embaralha.
+- `src/utils/gameRules.test.ts` — regras puras: par, pontuação, troca de turno, fim de jogo e empate.
+- `src/features/board/Board.test.tsx` — comportamento do tabuleiro: acerto mantém a vez, erro desvira e
+  troca a vez, bloqueio durante a revelação, clique repetido na mesma carta, vitória, empate e reinício.
+
+Nenhum teste depende de rede: o `fetch`/`XMLHttpRequest` são bloqueados em `src/test/setup.ts` e o
+`playSound` é mockado, então as imagens e áudios externos nunca são requisitados.
 
 ## Como jogar
 
