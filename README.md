@@ -52,6 +52,7 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
+| `npm run test`       | Roda os testes das imagens locais e do build offline                |
 
 ## Estrutura do projeto
 
@@ -64,10 +65,12 @@ Jogo_da_Memoria_React/                    # raiz do repositório
 ├── README.md
 ├── JogoDaMemoria_ReactNative/          # versão mobile (Expo)
 └── Jogo_da_Memoria_React/              # app web (React + Vite)
-    ├── public/                 # Arquivos estáticos
+    ├── public/                 # Arquivos estáticos (inclui o sw.js)
+    ├── tests/                  # Testes das imagens locais e do build offline
     └── src/
         ├── @Types/             # Tipos compartilhados (carta, configuração do jogo)
         ├── assets/             # Imagens e efeitos sonoros
+        │   └── cards/          # 21 faces locais em WebP (+ CREDITS.md)
         ├── components/         # Componentes reutilizáveis
         │   ├── Card/           # Carta individual
         │   ├── Scoreboard/     # Placar do jogador
@@ -150,6 +153,37 @@ npm install
 npm start
 ```
 
+## Funciona offline
+
+Todas as faces das cartas ficam em `Jogo_da_Memoria_React/src/assets/cards/` como WebP
+512×512 px (≈470 KB no total, contra ~3 MB das imagens originais). O Vite empacota esses
+arquivos com hash no nome, então **o jogo não faz nenhuma requisição a domínios
+externos**.
+
+Além disso, um service worker (`public/sw.js`) pré-carrega o bundle e as 21 faces no
+primeiro acesso, o que deixa o jogo jogável offline — inclusive recarregando a página
+com a aba *Offline* do DevTools ligada. Em `npm run dev` o service worker não é
+registrado, para não atrapalhar o hot reload.
+
+Para conferir: abra o DevTools → *Network*, recarregue e veja que só aparecem
+requisições para o próprio domínio. Depois marque *Offline* e recarregue: o jogo
+continua funcionando.
+
+O `nginx.conf` serve `/assets/` com `Cache-Control: immutable` por 1 ano e mantém
+`/sw.js` e `/precache-manifest.json` com `no-cache`, para que uma nova versão do jogo
+chegue sem ficar presa no cache.
+
 ## Licença
 
 Uso livre para fins de estudo e portfólio.
+
+### Créditos das imagens das cartas
+
+As faces foram baixadas de bancos de imagem de terceiros (Freepik e Adobe Stock/ftcdn),
+recortadas e convertidas para WebP. A lista completa com a URL de origem de cada arquivo
+está em [`Jogo_da_Memoria_React/src/assets/cards/CREDITS.md`](Jogo_da_Memoria_React/src/assets/cards/CREDITS.md).
+
+Essas imagens **permanecem sujeitas às licenças originais**: o uso gratuito do Freepik
+exige atribuição ao autor e ao Freepik, e as imagens do Adobe Stock/ftcdn não podem ser
+redistribuídas. Antes de publicar o jogo comercialmente, substitua as faces por imagens
+próprias, geradas ou de domínio público (CC0).
