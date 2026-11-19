@@ -20,10 +20,27 @@ npm run dev          # servidor de desenvolvimento
 npm run build        # tsc --noEmit && vite build (base "/")
 npm run typecheck
 npm run test         # Vitest (jsdom): componentes e fluxo do Board
-npm run test:assets  # node --test: imagens locais + build offline
+npm run test:assets  # node --test: imagens locais, build offline, SEO e acessibilidade
 npm run build:pages  # base "/Jogo_da_Memoria_React/" para GitHub Pages
 npm run deploy       # publica no gh-pages
 ```
+
+## Testes e CI
+
+- `npm run test` roda a suíte Vitest em jsdom. O `src/test/setup.ts` troca
+  `fetch` e `XMLHttpRequest` por uma função que lança erro, então **qualquer
+  teste que tente acessar a rede falha de propósito**. Se um teste precisar de
+  rede, o caminho é mockar a origem, não remover o bloqueio.
+- `npm run test:assets` roda os testes `node --test` de `tests/` e `test/`:
+  imagens locais, build offline, metas sociais nos dois modos de publicação e
+  as regras de `prefers-reduced-motion`/foco visível do CSS.
+- O teste de SEO monta o site de verdade com `vite build`, então é lento.
+  Ele confere que nenhum placeholder `%SITE_` sobra no HTML final.
+- O plugin `absoluteSocialUrls` em `vite.config.ts` usa o `base` **resolvido**
+  pelo Vite (`configResolved`), não a constante local — é isso que faz o
+  subcaminho do GitHub Pages funcionar.
+- CI em `.github/workflows/ci.yml`: `npm ci`, typecheck e `npm test` a cada
+  push na `main` e a cada pull request.
 
 ## Imagens das cartas
 
