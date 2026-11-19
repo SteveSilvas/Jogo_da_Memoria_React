@@ -1,148 +1,174 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-type FakeAudio = {
-    src: string;
-    volume: number;
-    preload: string;
-    currentTime: number;
-    paused: boolean;
-    play: () => Promise<void>;
-    pause: () => void;
-};
-
 const created: FakeAudio[] = [];
-let playBehaviour: () => Promise<void> = () => Promise.resolve();
 
-class FakeHTMLAudioElement implements FakeAudio {
+class FakeAudio {
     src: string;
     volume = 1;
     preload = "";
     currentTime = 0;
     paused = true;
+    listeners: Record<string, (() => void)[]> = {};
+    playCalls = 0;
+    pauseCalls = 0;
+    shouldReject = false;
 
-    constructor(src = "") {
+    constructor(src: string) {
         this.src = src;
         created.push(this);
     }
 
-    play = (): Promise<void> => {
+    play() {
+        this.playCalls += 1;
         this.paused = false;
-        return playBehaviour();
-    };
+        if (this.shouldReject) {
+            return Promise.reject(new Error("NotAllowedError"));
+        }
+        return Promise.resolve();
+    }
 
-    pause = (): void => {
+    pause() {
+        this.pauseCalls += 1;
         this.paused = true;
-    };
+    }
+
+    addEventListener(type: string, handler: () => void) {
+        this.listeners[type] = [...(this.listeners[type] ?? []), handler];
+    }
+
+    emit(type: string) {
+        for (const handler of this.listeners[type] ?? []) handler();
+    }
 }
 
-const loadSoundModule = async () => {
+const loadSound = async () => {
     vi.resetModules();
+    vi.stubGlobal("Audio", FakeAudio);
+    const prefs = await import("./soundPreferences");
+    prefs.setMuted(false);
     return import("./sound");
 };
 
 describe("playSound", () => {
     beforeEach(() => {
         created.length = 0;
-        playBehaviour = () => Promise.resolve();
-        vi.stubGlobal("Audio", FakeHTMLAudioElement);
     });
 
-    it("reutiliza um único elemento de áudio por src", async () => {
-        const { playSound } = await loadSoundModule();
+    it("cria apenas um elemento por src, mesmo tocando varias vezes", async () => {
+        const { playSound } = await loadSound();
 
-        playSound("flip.mp3", 0.35);
-        playSound("flip.mp3", 0.35);
-        playSound("flip.mp3", 0.35);
+        playSound("/flip.mp3");
+        playSound("/flip.mp3");
+        playSound("/flip.mp3");
 
         expect(created).toHaveLength(1);
+        expect(created[0].playCalls).toBe(3);
     });
 
-    it("cria elementos separados para sons diferentes", async () => {
-        const { playSound } = await loadSoundModule();
+    it("cria elementos distintos para sons distintos", async () => {
+        const { playSound } = await loadSound();
 
-        playSound("flip.mp3");
-        playSound("match.mp3");
-        playSound("win.mp3");
+        playSound("/flip.mp3");
+        playSound("/match.mp3");
+        playSound("/win.mp3");
 
         expect(created).toHaveLength(3);
-        expect(created.map((audio) => audio.src)).toEqual([
-            "flip.mp3",
-            "match.mp3",
-            "win.mp3",
+        expect(created.map((a) => a.src)).toEqual([
+            "/flip.mp3",
+            "/match.mp3",
+            "/win.mp3",
         ]);
     });
 
-    it("reinicia currentTime ao reutilizar o elemento", async () => {
-        const { playSound } = await loadSoundModule();
+    it("reseta currentTime antes de tocar de novo", async () => {
+        const { playSound } = await loadSound();
 
-        playSound("flip.mp3");
-        created[0].currentTime = 1.5;
+        playSound("/flip.mp3");
+        const audio = created[0];
+        audio.currentTime = 1.7;
 
-        playSound("flip.mp3");
-
-        expect(created[0].currentTime).toBe(0);
-        expect(created).toHaveLength(1);
+        playSound("/flip.mp3");
+        expect(audio.currentTime).toBe(0);
     });
 
     it("aplica o volume informado", async () => {
-        const { playSound } = await loadSoundModule();
+        const { playSound } = await loadSound();
 
-        playSound("flip.mp3", 0.35);
-        playSound("flip.mp3", 0.8);
-
-        expect(created[0].volume).toBe(0.8);
+        playSound("/flip.mp3", 0.35);
+        expect(created[0].volume).toBe(0.35);
     });
 
-    it("não interrompe a UI quando play() é bloqueado", async () => {
-        playBehaviour = () => Promise.reject(new Error("NotAllowedError"));
-        const { playSound } = await loadSoundModule();
+    it("nao toca quando o som esta desligado", async () => {
+        const { playSound } = await loadSound();
+        const prefs = await import("./soundPreferences");
+        prefs.setMuted(true);
 
-        expect(() => playSound("flip.mp3")).not.toThrow();
+        playSound("/flip.mp3");
+        expect(created).toHaveLength(0);
+    });
+
+    it("nao propaga rejeicao do autoplay bloqueado", async () => {
+        const { playSound } = await loadSound();
+        const original = globalThis.Audio;
+        vi.stubGlobal(
+            "Audio",
+            class extends FakeAudio {
+                constructor(src: string) {
+                    super(src);
+                    this.shouldReject = true;
+                }
+            },
+        );
+
+        expect(() => playSound("/flip.mp3")).not.toThrow();
         await Promise.resolve();
+        vi.stubGlobal("Audio", original);
     });
 
-    it("respeita o estado de mute", async () => {
-        const { playSound, setSoundMuted, isSoundMuted } = await loadSoundModule();
+    it("stopSound pausa o que esta tocando", async () => {
+        const { playSound, stopSound } = await loadSound();
 
-        expect(isSoundMuted()).toBe(false);
+        playSound("/flip.mp3");
+        await Promise.resolve();
+        stopSound();
 
-        playSound("flip.mp3");
-        expect(created[0].paused).toBe(false);
-
-        setSoundMuted(true);
-        expect(isSoundMuted()).toBe(true);
+        expect(created[0].pauseCalls).toBeGreaterThan(0);
         expect(created[0].paused).toBe(true);
+    });
 
-        playSound("flip.mp3");
-        expect(created[0].paused).toBe(true);
+    it("para de rastrear o audio quando termina", async () => {
+        const { playSound, stopSound } = await loadSound();
 
-        setSoundMuted(false);
-        playSound("flip.mp3");
-        expect(created[0].paused).toBe(false);
+        playSound("/flip.mp3");
+        await Promise.resolve();
+        const audio = created[0];
+        audio.emit("ended");
+
+        stopSound();
+        expect(audio.pauseCalls).toBe(0);
     });
 });
 
 describe("preloadSounds", () => {
     beforeEach(() => {
         created.length = 0;
-        vi.stubGlobal("Audio", FakeHTMLAudioElement);
     });
 
     it("cria os elementos com preload auto sem tocar", async () => {
-        const { preloadSounds } = await loadSoundModule();
+        const { preloadSounds } = await loadSound();
 
-        preloadSounds(["flip.mp3", "match.mp3", "win.mp3"]);
+        preloadSounds(["/flip.mp3", "/match.mp3", "/win.mp3"]);
 
         expect(created).toHaveLength(3);
         expect(created.every((audio) => audio.preload === "auto")).toBe(true);
         expect(created.every((audio) => audio.paused)).toBe(true);
     });
 
-    it("reaproveita elementos já carregados ao tocar", async () => {
-        const { preloadSounds, playSound } = await loadSoundModule();
+    it("reaproveita elementos ja carregados ao tocar", async () => {
+        const { preloadSounds, playSound } = await loadSound();
 
-        preloadSounds(["flip.mp3"]);
-        playSound("flip.mp3");
+        preloadSounds(["/flip.mp3"]);
+        playSound("/flip.mp3");
 
         expect(created).toHaveLength(1);
         expect(created[0].paused).toBe(false);

@@ -105,3 +105,33 @@
         transform: scale(1);
     }
 }
+
+/* Foco de teclado: precisa contrastar sobre os dois fundos da carta
+   (#2b2f6b virada, #0d1030 revelada). */
+.Card:focus-visible {
+    outline: 3px solid #ffd76e;
+    outline-offset: 3px;
+    border-radius: 16px;
+}
+
+.Card:focus-visible .Card-inner {
+    box-shadow: 0 0 0 3px rgba(255, 215, 110, 0.55), 0 0 24px rgba(255, 215, 110, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .Card,
+    .Card-inner,
+    .Card.is-matched {
+        transition: none;
+        animation: none;
+    }
+
+    .Card:not(:disabled):hover {
+        transform: none;
+    }
+
+    /* O transform nao pode ser removido: e ele que revela a face. */
+    .Card-inner {
+        transition: none;
+    }
+}

@@ -84,3 +84,103 @@
     font-size: 1.1rem;
     font-weight: 700;
 }
+
+.StartResume {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    background: rgba(56, 211, 159, 0.1);
+    border: 1px solid rgba(56, 211, 159, 0.4);
+}
+
+.StartResume-title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    color: #38d39f;
+}
+
+.StartResume-details {
+    margin: 0 0 0.85rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.StartResume-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.StartResume-resume {
+    flex: 1 1 auto;
+}
+
+.ModeGroup {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.ModeGroup legend {
+    padding: 0;
+    margin-bottom: 0.5rem;
+}
+
+.ModeOptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+}
+
+.ModeOption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(120, 140, 255, 0.3);
+    background: rgba(10, 12, 34, 0.6);
+    cursor: pointer;
+}
+
+.ModeOption.is-selected {
+    border-color: #38d39f;
+    background: rgba(56, 211, 159, 0.12);
+}
+
+.ModeOption {
+    position: relative;
+}
+
+.ModeOption input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    margin: 0;
+}
+
+.ModeOption:focus-within {
+    outline: 2px solid #7d8bff;
+    outline-offset: 2px;
+}
+
+.ModeOption-label {
+    font-weight: 600;
+    color: #fff;
+}
+
+.ModeOption-hint {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.62);
+}
+
+.Field-soloNote {
+    margin: 0;
+    padding: 0.7rem 0.8rem;
+    border-radius: 12px;
+    background: rgba(120, 140, 255, 0.12);
+    border: 1px dashed rgba(120, 140, 255, 0.35);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
