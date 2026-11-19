@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from "react";
+import { formatDuration } from "../../utils/time";
 import "./winnerPanel.css";
 
 type WinnerPanelProps = {
     players: { name: string; score: number }[];
+    moves?: number;
+    seconds?: number;
     onRestart: () => void;
     onNewGame: () => void;
 };
@@ -10,7 +13,13 @@ type WinnerPanelProps = {
 const FOCUSABLE =
     'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
+const WinnerPanel = ({
+    players,
+    moves,
+    seconds,
+    onRestart,
+    onNewGame,
+}: WinnerPanelProps) => {
     const panelRef = useRef<HTMLDivElement>(null);
     const primaryRef = useRef<HTMLButtonElement>(null);
     const onNewGameRef = useRef(onNewGame);
@@ -80,6 +89,23 @@ const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
                 <p className="WinnerPanel-subtitle">
                     {isDraw ? "Ninguém venceu desta vez" : "você venceu o jogo!"}
                 </p>
+
+                {(moves !== undefined || seconds !== undefined) && (
+                    <dl className="WinnerPanel-summary">
+                        {moves !== undefined && (
+                            <div className="WinnerPanel-summaryItem">
+                                <dt>Jogadas</dt>
+                                <dd>{moves}</dd>
+                            </div>
+                        )}
+                        {seconds !== undefined && (
+                            <div className="WinnerPanel-summaryItem">
+                                <dt>Tempo</dt>
+                                <dd>{formatDuration(seconds)}</dd>
+                            </div>
+                        )}
+                    </dl>
+                )}
 
                 <ul className="WinnerPanel-scores">
                     {players.map((p) => (

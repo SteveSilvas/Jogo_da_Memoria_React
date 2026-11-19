@@ -33,6 +33,11 @@
 }
 
 .Board-progress {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem 1.25rem;
     margin: 0;
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.55);
@@ -99,5 +104,34 @@
     .Board-grid.grid-30,
     .Board-grid.grid-40 {
         grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.Board-stats {
+    display: inline-flex;
+    gap: 1rem;
+}
+
+.Board-stat {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.Board-statLabel {
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.65;
+}
+
+@media (max-width: 380px) {
+    .Board-stats {
+        gap: 0.6rem;
+    }
+
+    .Board-statLabel {
+        font-size: 0.66rem;
     }
 }

@@ -25,6 +25,17 @@ const cardButtons = () =>
 
 const turnText = () => screen.getByRole("heading", { level: 2 }).textContent;
 
+
+const statValue = (label: string): string => {
+    const stat = Array.from(document.querySelectorAll(".Board-stat")).find(
+        (element) => element.textContent?.includes(label),
+    );
+    return stat?.querySelector("strong")?.textContent ?? "";
+};
+
+const movesValue = () => statValue("Jogadas");
+const timerValue = () => statValue("Tempo");
+
 const scoreOf = (playerName: string): string => {
     const aside = screen
         .getAllByRole("complementary")
@@ -279,6 +290,62 @@ describe("Board", () => {
 
         await waitFor(() => {
             expect(buttons[0].getAttribute("aria-label")).toContain("par encontrado");
+        });
+    });
+
+    it("conta uma jogada por par de cartas virado", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        expect(movesValue()).toBe("0");
+
+        const buttons = cardButtons();
+        await user.click(buttons[0]);
+        expect(movesValue()).toBe("0");
+
+        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const other = buttons.find(
+            (button) =>
+                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+        )!;
+        await user.click(other);
+
+        await waitFor(() => expect(movesValue()).toBe("1"));
+    });
+
+    it("nao conta jogada ao clicar na mesma carta duas vezes", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        const [first] = cardButtons();
+
+        await user.click(first);
+        await user.click(first);
+        expect(movesValue()).toBe("0");
+    });
+
+    it("mostra o cronometro zerado antes do primeiro clique", () => {
+        renderBoard();
+        expect(timerValue()).toBe("00:00");
+    });
+
+    it("zera jogadas e tempo ao reiniciar", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        const buttons = cardButtons();
+
+        await user.click(buttons[0]);
+        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const other = buttons.find(
+            (button) =>
+                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+        )!;
+        await user.click(other);
+        await waitFor(() => expect(movesValue()).toBe("1"));
+
+        await user.click(screen.getByRole("button", { name: "Reiniciar" }));
+
+        await waitFor(() => {
+            expect(movesValue()).toBe("0");
+            expect(timerValue()).toBe("00:00");
         });
     });
 });

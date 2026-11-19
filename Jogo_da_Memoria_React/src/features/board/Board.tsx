@@ -12,6 +12,8 @@ import { playSound } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import SoundToggle from "../../components/SoundToggle/SoundToggle";
+import { useGameTimer } from "../../hooks/useGameTimer";
+import { formatDuration } from "../../utils/time";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
 import "./board.css";
 
@@ -48,6 +50,14 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
     const [announcement, setAnnouncement] = useState("");
+    const [moves, setMoves] = useState(0);
+
+    const {
+        seconds: elapsedSeconds,
+        start: startTimer,
+        stop: stopTimer,
+        reset: resetTimer,
+    } = useGameTimer();
 
     const timeoutRef = useRef<number | null>(null);
 
@@ -69,7 +79,9 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         setIsLocked(false);
         setShowWinner(false);
         setAnnouncement("");
-    }, [amountCards, player1, player2, clearPendingTimeout]);
+        setMoves(0);
+        resetTimer();
+    }, [amountCards, player1, player2, clearPendingTimeout, resetTimer]);
 
     const totalPairs = useMemo(() => Math.floor(amountCards / 2), [amountCards]);
 
@@ -85,7 +97,11 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             );
             setSelected(nextSelected);
 
+            startTimer();
+
             if (nextSelected.length < 2) return;
+
+            setMoves((prev) => prev + 1);
 
             const [firstId, secondId] = nextSelected;
             const first = cards.find((c) => c.id === firstId);
@@ -139,6 +155,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     useEffect(() => {
         if (isGameOver(cards)) {
             playSound(WIN_SOUND, 0.45);
+            stopTimer();
             setShowWinner(true);
             setAnnouncement("Fim de jogo.");
         }
@@ -178,8 +195,19 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     {announcement}
                 </p>
                 <p className="Board-progress">
-                    {totalPairs} pares ·{" "}
-                    {countMatchedPairs(cards)} encontrados
+                    <span>
+                        {totalPairs} pares · {countMatchedPairs(cards)} encontrados
+                    </span>
+                    <span className="Board-stats">
+                        <span className="Board-stat">
+                            <span className="Board-statLabel">Jogadas</span>
+                            <strong>{moves}</strong>
+                        </span>
+                        <span className="Board-stat">
+                            <span className="Board-statLabel">Tempo</span>
+                            <strong>{formatDuration(elapsedSeconds)}</strong>
+                        </span>
+                    </span>
                 </p>
 
                 {renderGrid()}
@@ -204,6 +232,8 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             {showWinner && (
                 <WinnerPanel
                     players={players.map((p) => ({ name: p.name, score: p.score }))}
+                    moves={moves}
+                    seconds={elapsedSeconds}
                     onRestart={resetGame}
                     onNewGame={onExit}
                 />
