@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import CardType from "../../@Types/CardType";
 import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
 import { shuffle } from "../../utils/shuffle";
-import { playSound } from "../../utils/sound";
+import { playSound, isMuted, toggleMuted } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
@@ -53,6 +53,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
+    const [muted, setMutedState] = useState(() => isMuted());
 
     const timeoutRef = useRef<number | null>(null);
 
@@ -136,6 +137,10 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         [cards, isLocked, selected, turn],
     );
 
+    const handleToggleMute = useCallback(() => {
+        setMutedState(toggleMuted());
+    }, []);
+
     useEffect(() => {
         if (cards.length > 0 && cards.every((c) => c.matched)) {
             playSound(WIN_SOUND, 0.45);
@@ -178,6 +183,15 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 {renderGrid()}
 
                 <nav className="Board-footer">
+                    <button
+                        type="button"
+                        className="Button Button-ghost Board-soundToggle"
+                        onClick={handleToggleMute}
+                        aria-pressed={muted}
+                    >
+                        <span aria-hidden="true">{muted ? "🔇" : "🔊"}</span>
+                        {muted ? "Som desligado" : "Som ligado"}
+                    </button>
                     <button className="Button Button-ghost" onClick={onExit}>
                         Voltar
                     </button>
