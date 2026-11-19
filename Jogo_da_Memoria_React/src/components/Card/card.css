@@ -10,11 +10,11 @@
     transition: transform 0.15s ease;
 }
 
-.Card:disabled {
+.Card[aria-disabled="true"] {
     cursor: default;
 }
 
-.Card:not(:disabled):hover {
+.Card:not([aria-disabled="true"]):hover {
     transform: translateY(-4px);
 }
 

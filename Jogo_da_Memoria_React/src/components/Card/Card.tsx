@@ -5,11 +5,19 @@ import "./card.css";
 type CardProps = {
     card: CardType;
     back: string;
-    disabled: boolean;
+    locked: boolean;
     onSelect: (card: CardType) => void;
+    position: number;
+    total: number;
 };
 
-const Card = ({ card, back, disabled, onSelect }: CardProps) => {
+const stateLabel = (card: CardType): string => {
+    if (card.matched) return "par encontrado";
+    if (card.flipped) return "revelada";
+    return "virada para baixo";
+};
+
+const Card = ({ card, back, locked, onSelect, position, total }: CardProps) => {
     const revealed = card.flipped || card.matched;
     const classes = [
         "Card",
@@ -19,18 +27,22 @@ const Card = ({ card, back, disabled, onSelect }: CardProps) => {
         .filter(Boolean)
         .join(" ");
 
+    const selectable = !locked && !revealed;
+
     const handleClick = () => {
-        if (disabled || revealed) return;
+        if (!selectable) return;
         onSelect(card);
     };
 
+    // aria-disabled em vez de disabled: a carta continua focável, então o
+    // leitor de tela anuncia o estado ("revelada"/"par encontrado").
     return (
         <button
             type="button"
             className={classes}
             onClick={handleClick}
-            disabled={disabled || revealed}
-            aria-label={revealed ? "Carta revelada" : "Carta virada para baixo"}
+            aria-disabled={!selectable}
+            aria-label={`Carta ${position} de ${total}, ${stateLabel(card)}`}
         >
             <span className="Card-inner">
                 <span className="Card-face Card-front">

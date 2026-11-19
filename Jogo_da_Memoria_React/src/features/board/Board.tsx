@@ -3,6 +3,12 @@ import CardType from "../../@Types/CardType";
 import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
 import { shuffle } from "../../utils/shuffle";
 import { playSound } from "../../utils/sound";
+import {
+    foundCountLabel,
+    pairCountLabel,
+    progressLabel,
+} from "../../utils/pluralize";
+import { isDraw, winnerHeadline } from "../../utils/gameResult";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
@@ -53,8 +59,13 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
+    const [announcement, setAnnouncement] = useState("");
+    const [gameOverAnnouncement, setGameOverAnnouncement] = useState("");
 
     const timeoutRef = useRef<number | null>(null);
+    const announceTimeoutRef = useRef<number | null>(null);
+    const previousTurnRef = useRef<0 | 1>(turn);
+    const gameOverAnnouncedRef = useRef(false);
 
     const clearPendingTimeout = useCallback(() => {
         if (timeoutRef.current !== null) {
@@ -63,19 +74,53 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         }
     }, []);
 
-    useEffect(() => clearPendingTimeout, [clearPendingTimeout]);
+    // Limpar antes de escrever garante que a mesma mensagem repetida
+    // (ex.: reiniciar duas vezes seguidas) volte a ser anunciada.
+    const announce = useCallback((message: string) => {
+        if (announceTimeoutRef.current !== null) {
+            window.clearTimeout(announceTimeoutRef.current);
+        }
+        setAnnouncement("");
+        announceTimeoutRef.current = window.setTimeout(() => {
+            announceTimeoutRef.current = null;
+            setAnnouncement(message);
+        }, 50);
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            clearPendingTimeout();
+            if (announceTimeoutRef.current !== null) {
+                window.clearTimeout(announceTimeoutRef.current);
+            }
+        };
+    }, [clearPendingTimeout]);
 
     const resetGame = useCallback(() => {
         clearPendingTimeout();
         setCards(buildDeck(amountCards));
         setSelected([]);
+        previousTurnRef.current = 0;
         setTurn(0);
         setPlayers(initialPlayers(player1, player2));
         setIsLocked(false);
         setShowWinner(false);
-    }, [amountCards, player1, player2, clearPendingTimeout]);
+        gameOverAnnouncedRef.current = false;
+        setGameOverAnnouncement("");
+        announce(`Jogo reiniciado. Vez de ${player1}.`);
+    }, [amountCards, player1, player2, clearPendingTimeout, announce]);
 
     const totalPairs = useMemo(() => Math.floor(amountCards / 2), [amountCards]);
+    const foundPairs = useMemo(
+        () => cards.filter((c) => c.matched).length / 2,
+        [cards],
+    );
+
+    useEffect(() => {
+        if (previousTurnRef.current === turn) return;
+        previousTurnRef.current = turn;
+        announce(`Vez de ${players[turn].name}.`);
+    }, [turn, players, announce]);
 
     const handleSelect = useCallback(
         (card: CardType) => {
@@ -114,6 +159,11 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     updated[turn].pairs.push(first.face);
                     return updated;
                 });
+                announce(
+                    `Par encontrado! ${players[turn].name} tem ${pairCountLabel(
+                        players[turn].score + 1,
+                    )}. ${progressLabel(foundPairs + 1, totalPairs)}.`,
+                );
                 setSelected([]);
                 return;
             }
@@ -133,25 +183,39 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 timeoutRef.current = null;
             }, MATCH_DELAY);
         },
-        [cards, isLocked, selected, turn],
+        [cards, isLocked, players, selected, turn, foundPairs, totalPairs, announce],
     );
 
     useEffect(() => {
-        if (cards.length > 0 && cards.every((c) => c.matched)) {
-            playSound(WIN_SOUND, 0.45);
-            setShowWinner(true);
+        const allMatched = cards.length > 0 && cards.every((c) => c.matched);
+        if (!allMatched) {
+            gameOverAnnouncedRef.current = false;
+            return;
         }
-    }, [cards]);
+        if (gameOverAnnouncedRef.current) return;
+        gameOverAnnouncedRef.current = true;
+        playSound(WIN_SOUND, 0.45);
+        setShowWinner(true);
+        const result = players.map((p) => ({ name: p.name, score: p.score }));
+        const scores = result
+            .map((p) => `${p.name}: ${pairCountLabel(p.score)}`)
+            .join(", ");
+        setGameOverAnnouncement(
+            `Fim de jogo. ${isDraw(result) ? "Empate!" : winnerHeadline(result)} ${scores}.`,
+        );
+    }, [cards, players]);
 
     const renderGrid = () => (
         <div className={`Board-grid ${sizeClassFor(amountCards)}`}>
-            {cards.map((card) => (
+            {cards.map((card, index) => (
                 <Card
                     key={card.id}
                     card={card}
                     back={CARD_BACK}
-                    disabled={isLocked || selected.length >= 2}
+                    locked={isLocked || selected.length >= 2}
                     onSelect={handleSelect}
+                    position={index + 1}
+                    total={cards.length}
                 />
             ))}
         </div>
@@ -171,8 +235,19 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     Vez de <strong>{players[turn].name}</strong>
                 </h2>
                 <p className="Board-progress">
-                    {totalPairs} pares ·{" "}
-                    {cards.filter((c) => c.matched).length / 2} encontrados
+                    {pairCountLabel(totalPairs)} · {foundCountLabel(foundPairs)}
+                </p>
+
+                <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+                    {announcement}
+                </p>
+                <p
+                    className="sr-only"
+                    role="alert"
+                    aria-live="assertive"
+                    aria-atomic="true"
+                >
+                    {gameOverAnnouncement}
                 </p>
 
                 {renderGrid()}
