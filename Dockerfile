@@ -10,6 +10,11 @@ RUN npm ci
 
 # Copia o código e gera a build de produção (base "/" para servir na raiz do domínio)
 COPY Jogo_da_Memoria_React/ ./
+
+# Domínio público usado nas metas de SEO/Open Graph (og:url, og:image).
+# Defina no Coolify como build arg para o preview social apontar para o seu domínio.
+ARG VITE_SITE_URL=https://stevesilvas.github.io
+ENV VITE_SITE_URL=$VITE_SITE_URL
 RUN npm run build
 
 # ---- Etapa de produção (nginx) ----

@@ -51,7 +51,26 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm test`           | Roda os testes (metas de SEO e imagem social)                       |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
+
+## Metas de SEO e compartilhamento
+
+O `index.html` traz `description`, `theme-color`, Open Graph e Twitter Card. As URLs
+absolutas de `og:url`, `og:image`, `twitter:image` e `canonical` são montadas no build
+pelo plugin `socialMeta` do `vite.config.ts`, sempre a partir de duas peças:
+
+- `VITE_SITE_URL` — origem pública do site, sem barra no final.
+  Padrão: `https://stevesilvas.github.io`. No Coolify, defina como build arg com o seu domínio.
+- `base` do Vite — `/` na raiz (Coolify) e `/Jogo_da_Memoria_React/` no GitHub Pages
+  (`npm run build:pages`).
+
+A imagem de preview é `public/og-image.jpg` (1200×630, ~96 KB). Se ela faltar, o build
+falha de propósito, em vez de publicar um `og:image` quebrado.
+
+```bash
+npm test   # valida as metas nos dois modos de build e a imagem social
+```
 
 ## Estrutura do projeto
 
@@ -64,7 +83,8 @@ Jogo_da_Memoria_React/                    # raiz do repositório
 ├── README.md
 ├── JogoDaMemoria_ReactNative/          # versão mobile (Expo)
 └── Jogo_da_Memoria_React/              # app web (React + Vite)
-    ├── public/                 # Arquivos estáticos
+    ├── public/                 # Arquivos estáticos (inclui og-image.jpg do preview social)
+    ├── test/                   # Testes das metas de SEO e do build
     └── src/
         ├── @Types/             # Tipos compartilhados (carta, configuração do jogo)
         ├── assets/             # Imagens e efeitos sonoros
@@ -107,7 +127,9 @@ A build usa o `base` do Vite como `/` (raiz do domínio), ideal para um domínio
 5. **Dockerfile Location:** `/Dockerfile` (padrão).
 6. Em **Ports Exposes**, informe `80` (porta do nginx do container).
 7. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
-8. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+8. Em **Build Args** (ou variáveis de build), defina `VITE_SITE_URL` com o mesmo domínio
+   (ex.: `https://jogo.seudominio.com`), para o `og:url`/`og:image` apontarem para ele.
+9. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
 
 ### Testar localmente antes
 

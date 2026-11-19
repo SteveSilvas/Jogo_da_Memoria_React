@@ -11,8 +11,9 @@
         "dev": "vite",
         "start": "vite",
         "build": "tsc --noEmit && vite build",
-        "build:pages": "tsc --noEmit && cross-env VITE_BASE_PATH=/Jogo_da_Memoria_React/ vite build",
+        "build:pages": "tsc --noEmit && cross-env VITE_BASE_PATH=/Jogo_da_Memoria_React/ VITE_SITE_URL=https://stevesilvas.github.io vite build",
         "typecheck": "tsc --noEmit",
+        "test": "node --test \"test/*.test.mjs\"",
         "preview": "vite preview --host 0.0.0.0",
         "predeploy": "npm run build:pages",
         "deploy": "gh-pages -d dist"

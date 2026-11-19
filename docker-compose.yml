@@ -10,6 +10,9 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+            args:
+                # Origem pública usada em og:url/og:image. Ajuste ao seu domínio.
+                VITE_SITE_URL: ${VITE_SITE_URL:-https://stevesilvas.github.io}
         image: jogo-da-memoria:latest
         restart: unless-stopped
         environment:
