@@ -1,15 +1,22 @@
-import { defineConfig } from "vite";
-import type { Plugin } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Lista os arquivos emitidos para o service worker pré-carregar tudo na instalação,
-// o que garante o jogo offline já no primeiro acesso.
+const DEFAULT_SITE_ORIGIN = "https://SteveSilvas.github.io";
+
+const basePath = process.env.VITE_BASE_PATH ?? "/";
+
+// Lista os arquivos emitidos para o service worker pre-carregar tudo na instalacao,
+// o que garante o jogo offline ja no primeiro acesso.
 const precacheManifest = (): Plugin => ({
     name: "precache-manifest",
     apply: "build",
     generateBundle(_options, bundle) {
-        const emitted = Object.keys(bundle).filter((file) => file !== "precache-manifest.json");
-        const files = emitted.includes("index.html") ? emitted : ["index.html", ...emitted];
+        const emitted = Object.keys(bundle).filter(
+            (file) => file !== "precache-manifest.json",
+        );
+        const files = emitted.includes("index.html")
+            ? emitted
+            : ["index.html", ...emitted];
         this.emitFile({
             type: "asset",
             fileName: "precache-manifest.json",
@@ -18,12 +25,39 @@ const precacheManifest = (): Plugin => ({
     },
 });
 
+// Redes sociais nao resolvem caminho relativo em og:image/twitter:image, entao as
+// URLs absolutas sao montadas aqui com a origem do build e o `base` configurado.
+// Defina VITE_SITE_URL com a origem publica (sem barra final).
+const absoluteSocialUrls = (): Plugin => {
+    let resolvedBase = basePath;
+    return {
+        name: "absolute-social-urls",
+        configResolved(config) {
+            resolvedBase = config.base;
+        },
+        transformIndexHtml(html) {
+            const origin = (
+                process.env.VITE_SITE_URL || DEFAULT_SITE_ORIGIN
+            ).replace(/\/+$/, "");
+            const url = new URL(resolvedBase, origin).href;
+            const image = new URL(
+                `${resolvedBase.replace(/\/+$/, "")}/og-image.jpg`,
+                origin,
+            ).href;
+
+            return html
+                .replaceAll("%SITE_URL%", url)
+                .replaceAll("%SITE_IMAGE%", image);
+        },
+    };
+};
+
 // https://vitejs.dev/config/
 export default defineConfig({
-    // "/" serve na raiz do domínio (Coolify/nginx).
+    // "/" serve na raiz do dominio (Coolify/nginx).
     // Defina VITE_BASE_PATH para publicar em um subcaminho (ex.: GitHub Pages).
-    base: process.env.VITE_BASE_PATH ?? "/",
-    plugins: [react(), precacheManifest()],
+    base: basePath,
+    plugins: [react(), absoluteSocialUrls(), precacheManifest()],
     preview: {
         host: true,
         port: 4173,

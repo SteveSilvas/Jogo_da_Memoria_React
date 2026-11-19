@@ -21,6 +21,13 @@ const localFaceImports = (source) =>
 
 const remoteUrls = (text) => [...text.matchAll(/https?:\/\/[^\s"'`()]+/g)].map((m) => m[0]);
 
+// og:url e og:image precisam de URL absoluta, entao a origem do proprio site
+// aparece no HTML gerado; qualquer outro host continua sendo hotlink.
+const thirdPartyUrls = (text) =>
+    remoteUrls(text).filter(
+        (url) => !/^https?:\/\/(stevesilvas\.github\.io)(\/|$)/i.test(url),
+    );
+
 const webpDimensions = (buffer) => {
     assert.equal(buffer.subarray(0, 4).toString("ascii"), "RIFF", "not a RIFF file");
     assert.equal(buffer.subarray(8, 12).toString("ascii"), "WEBP", "not a WebP file");
@@ -146,7 +153,7 @@ describe("card faces are served locally", () => {
 
             for (const file of ["index.html", ...emitted.filter((name) => name.endsWith(".css"))]) {
                 const content = await readFile(path.join(file === "index.html" ? outDir : path.join(outDir, "assets"), file), "utf8");
-                assert.deepEqual(remoteUrls(content), [], `${file} still requests a third-party host`);
+                assert.deepEqual(thirdPartyUrls(content), [], `${file} still requests a third-party host`);
             }
         } finally {
             await rm(outDir, { recursive: true, force: true });

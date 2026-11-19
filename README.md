@@ -51,9 +51,9 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
-| `npm run test`       | Executa os testes unitários com Vitest                              |
+| `npm run test`       | Executa a suíte de testes com Vitest e Testing Library               |
+| `npm run test:assets`| Verifica as imagens locais e o build offline (node --test)          |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
-| `npm run test`       | Roda os testes das imagens locais e do build offline                |
 
 ## Estrutura do projeto
 
@@ -111,7 +111,19 @@ A build usa o `base` do Vite como `/` (raiz do domínio), ideal para um domínio
 5. **Dockerfile Location:** `/Dockerfile` (padrão).
 6. Em **Ports Exposes**, informe `80` (porta do nginx do container).
 7. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
-8. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+8. Em **Environment Variables**, defina `VITE_SITE_URL` com a origem pública do site
+   (ex.: `https://jogo.seudominio.com`). Sem ela, as URLs absolutas de preview usam
+   `https://SteveSilvas.github.io` como padrão.
+9. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+
+### Preview em redes sociais
+
+O `index.html` traz `meta description`, Open Graph e Twitter Card, e a imagem de preview
+fica em `public/og-image.jpg` (1200×630, ~72 KB).
+
+Redes sociais não resolvem caminho relativo em `og:image`, então o build monta as URLs
+absolutas com `VITE_SITE_URL` + o `base` do Vite — funcionando tanto na raiz (Coolify)
+quanto em subcaminho (`npm run build:pages`, GitHub Pages).
 
 ### Testar localmente antes
 

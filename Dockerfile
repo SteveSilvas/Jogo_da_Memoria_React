@@ -8,6 +8,10 @@ WORKDIR /app
 COPY Jogo_da_Memoria_React/package.json Jogo_da_Memoria_React/package-lock.json ./
 RUN npm ci
 
+# Origem pública do site, usada nas URLs absolutas de Open Graph/Twitter Card.
+ARG VITE_SITE_URL=
+ENV VITE_SITE_URL=$VITE_SITE_URL
+
 # Copia o código e gera a build de produção (base "/" para servir na raiz do domínio)
 COPY Jogo_da_Memoria_React/ ./
 RUN npm run build

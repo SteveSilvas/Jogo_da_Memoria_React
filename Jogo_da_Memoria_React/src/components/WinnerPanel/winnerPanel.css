@@ -95,3 +95,40 @@
         transform: translateY(0) scale(1);
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .WinnerOverlay,
+    .WinnerPanel {
+        animation: none;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+
+.WinnerPanel-summary {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 0 0 1rem;
+}
+
+.WinnerPanel-summaryItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.WinnerPanel-summaryItem dt {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.65;
+}
+
+.WinnerPanel-summaryItem dd {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
