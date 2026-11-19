@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import CardType from "../../@Types/CardType";
 import { CARD_BACK, CARD_FACES } from "../../data/cardFaces";
 import { shuffle } from "../../utils/shuffle";
-import { playSound } from "../../utils/sound";
+import { playSound, preloadSounds } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
@@ -11,6 +11,8 @@ import "./board.css";
 const MATCH_SOUND = new URL("../../assets/songs/ES_Beep Sonar Blip 1 - SFX Producer.mp3", import.meta.url).href;
 const FLIP_SOUND = new URL("../../assets/songs/transition.mp3", import.meta.url).href;
 const WIN_SOUND = new URL("../../assets/songs/ES_PREL Glitch 15 - SFX Producer.mp3", import.meta.url).href;
+
+const SOUNDS = [FLIP_SOUND, MATCH_SOUND, WIN_SOUND];
 
 const MATCH_DELAY = 900;
 
@@ -55,6 +57,10 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     const [showWinner, setShowWinner] = useState(false);
 
     const timeoutRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        preloadSounds(SOUNDS);
+    }, []);
 
     const clearPendingTimeout = useCallback(() => {
         if (timeoutRef.current !== null) {
