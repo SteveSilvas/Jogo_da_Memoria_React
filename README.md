@@ -107,7 +107,19 @@ A build usa o `base` do Vite como `/` (raiz do domínio), ideal para um domínio
 5. **Dockerfile Location:** `/Dockerfile` (padrão).
 6. Em **Ports Exposes**, informe `80` (porta do nginx do container).
 7. Em **Domains**, coloque seu domínio (ex.: `https://jogo.seudominio.com`) e ative o HTTPS.
-8. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+8. Em **Environment Variables**, defina `VITE_SITE_URL` com a origem pública do site
+   (ex.: `https://jogo.seudominio.com`). Sem ela, as URLs absolutas de preview usam
+   `https://SteveSilvas.github.io` como padrão.
+9. Clique em **Deploy**. A cada `git push` o Coolify reconstrói e publica automaticamente.
+
+### Preview em redes sociais
+
+O `index.html` traz `meta description`, Open Graph e Twitter Card, e a imagem de preview
+fica em `public/og-image.jpg` (1200×630, ~72 KB).
+
+Redes sociais não resolvem caminho relativo em `og:image`, então o build monta as URLs
+absolutas com `VITE_SITE_URL` + o `base` do Vite — funcionando tanto na raiz (Coolify)
+quanto em subcaminho (`npm run build:pages`, GitHub Pages).
 
 ### Testar localmente antes
 
