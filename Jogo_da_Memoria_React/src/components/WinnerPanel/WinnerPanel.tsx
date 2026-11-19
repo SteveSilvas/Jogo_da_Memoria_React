@@ -17,12 +17,19 @@ const WinnerPanel = ({ players, onRestart, onNewGame }: WinnerPanelProps) => {
         : `Parabéns, ${winners[0].name}!`;
 
     return (
-        <div className="WinnerOverlay" role="dialog" aria-modal="true">
+        <div
+            className="WinnerOverlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="winner-title"
+        >
             <div className="WinnerPanel">
                 <p className="WinnerPanel-emoji" aria-hidden="true">
                     {isDraw ? "🤝" : "🏆"}
                 </p>
-                <h2 className="WinnerPanel-title">{headline}</h2>
+                <h2 className="WinnerPanel-title" id="winner-title">
+                    {headline}
+                </h2>
                 <p className="WinnerPanel-subtitle">
                     {isDraw ? "Ninguém venceu desta vez" : "você venceu o jogo!"}
                 </p>

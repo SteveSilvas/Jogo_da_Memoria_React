@@ -46,6 +46,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
+    const [announcement, setAnnouncement] = useState("");
 
     const timeoutRef = useRef<number | null>(null);
 
@@ -66,6 +67,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         setPlayers(initialPlayers(player1, player2));
         setIsLocked(false);
         setShowWinner(false);
+        setAnnouncement("");
     }, [amountCards, player1, player2, clearPendingTimeout]);
 
     const totalPairs = useMemo(() => Math.floor(amountCards / 2), [amountCards]);
@@ -108,6 +110,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                     return updated;
                 });
                 setSelected([]);
+                setAnnouncement(`Par encontrado! ${players[turn].name} joga de novo.`);
                 return;
             }
 
@@ -123,6 +126,9 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 setSelected([]);
                 setTurn((prev) => nextTurn(prev));
                 setIsLocked(false);
+                setAnnouncement(
+                    `Carta nao e um par. Agora e a vez de ${players[nextTurn(turn)].name}.`,
+                );
                 timeoutRef.current = null;
             }, MATCH_DELAY);
         },
@@ -133,17 +139,20 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
         if (isGameOver(cards)) {
             playSound(WIN_SOUND, 0.45);
             setShowWinner(true);
+            setAnnouncement("Fim de jogo.");
         }
     }, [cards]);
 
     const renderGrid = () => (
         <div className={`Board-grid ${sizeClassFor(amountCards)}`}>
-            {cards.map((card) => (
+            {cards.map((card, index) => (
                 <Card
                     key={card.id}
                     card={card}
                     back={CARD_BACK}
                     disabled={isLocked || selected.length >= 2}
+                    index={index}
+                    total={cards.length}
                     onSelect={handleSelect}
                 />
             ))}
@@ -163,6 +172,9 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
                 <h2 className="Board-title">
                     Vez de <strong>{players[turn].name}</strong>
                 </h2>
+                <p className="sr-only" aria-live="polite" role="status">
+                    {announcement}
+                </p>
                 <p className="Board-progress">
                     {totalPairs} pares ·{" "}
                     {countMatchedPairs(cards)} encontrados

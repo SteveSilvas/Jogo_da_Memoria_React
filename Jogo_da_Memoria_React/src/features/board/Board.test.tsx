@@ -50,7 +50,7 @@ describe("Board", () => {
     it("nao revela nenhuma carta no inicio", () => {
         renderBoard();
         for (const card of cardButtons()) {
-            expect(card).toHaveAttribute("aria-label", "Carta virada para baixo");
+            expect(card.getAttribute("aria-label")).toContain("virada para baixo");
         }
     });
 
@@ -60,11 +60,11 @@ describe("Board", () => {
         const [first] = cardButtons();
 
         await user.click(first);
-        expect(first).toHaveAttribute("aria-label", "Carta revelada");
+        expect(first.getAttribute("aria-label")).toContain("revelada");
         expect(first).toBeDisabled();
 
         await user.click(first);
-        expect(first).toHaveAttribute("aria-label", "Carta revelada");
+        expect(first.getAttribute("aria-label")).toContain("revelada");
     });
 
     it("ao virar duas cartas iguais, marca o par e mantem a vez", async () => {
@@ -114,8 +114,8 @@ describe("Board", () => {
             { timeout: MATCH_DELAY + 1500 },
         );
 
-        expect(buttons[0]).toHaveAttribute("aria-label", "Carta virada para baixo");
-        expect(other).toHaveAttribute("aria-label", "Carta virada para baixo");
+        expect(buttons[0].getAttribute("aria-label")).toContain("virada para baixo");
+        expect(other.getAttribute("aria-label")).toContain("virada para baixo");
     });
 
     it("bloqueia o tabuleiro enquanto o par errado esta revelado", async () => {
@@ -199,7 +199,7 @@ describe("Board", () => {
             expect(scoreOf("Ana")).toBe("0");
         });
         for (const card of cardButtons()) {
-            expect(card).toHaveAttribute("aria-label", "Carta virada para baixo");
+            expect(card.getAttribute("aria-label")).toContain("virada para baixo");
             expect(card).not.toHaveClass("is-matched");
         }
         expect(turnText()).toContain("Ana");
@@ -211,5 +211,74 @@ describe("Board", () => {
 
         await user.click(screen.getByRole("button", { name: "Voltar" }));
         expect(onExit).toHaveBeenCalledTimes(1);
+    });
+
+    it("rotula cada carta com sua posicao na grade", () => {
+        renderBoard(10);
+        const labels = cardButtons().map((card) => card.getAttribute("aria-label"));
+        expect(labels[0]).toBe("Carta 1 de 10, virada para baixo");
+        expect(labels[9]).toBe("Carta 10 de 10, virada para baixo");
+        expect(new Set(labels).size).toBe(10);
+    });
+
+    it("anuncia a troca de vez em uma regiao aria-live", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        const status = screen.getByRole("status");
+        expect(status).toHaveAttribute("aria-live", "polite");
+
+        const buttons = cardButtons();
+        await user.click(buttons[0]);
+        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const other = buttons.find(
+            (button) =>
+                button.querySelectorAll("img")[1]?.getAttribute("src") !== faceA,
+        )!;
+        await user.click(other);
+
+        await waitFor(
+            () => {
+                expect(status.textContent).toContain("Bruno");
+            },
+            { timeout: MATCH_DELAY + 1500 },
+        );
+    });
+
+    it("anuncia o par encontrado", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        const buttons = cardButtons();
+
+        await user.click(buttons[0]);
+        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const twin = buttons.find(
+            (button, index) =>
+                index > 0 &&
+                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+        )!;
+        await user.click(twin);
+
+        await waitFor(() => {
+            expect(screen.getByRole("status").textContent).toContain("Par encontrado");
+        });
+    });
+
+    it("marca cartas encontradas com rotulo proprio", async () => {
+        const user = userEvent.setup();
+        renderBoard();
+        const buttons = cardButtons();
+
+        await user.click(buttons[0]);
+        const faceA = buttons[0].querySelectorAll("img")[1]?.getAttribute("src");
+        const twin = buttons.find(
+            (button, index) =>
+                index > 0 &&
+                button.querySelectorAll("img")[1]?.getAttribute("src") === faceA,
+        )!;
+        await user.click(twin);
+
+        await waitFor(() => {
+            expect(buttons[0].getAttribute("aria-label")).toContain("par encontrado");
+        });
     });
 });
