@@ -8,8 +8,8 @@ type GameTimer = {
     reset: () => void;
 };
 
-export const useGameTimer = (): GameTimer => {
-    const [seconds, setSeconds] = useState(0);
+export const useGameTimer = (initialSeconds = 0): GameTimer => {
+    const [seconds, setSeconds] = useState(() => Math.max(0, Math.floor(initialSeconds)));
     const [running, setRunning] = useState(false);
     const intervalRef = useRef<number | null>(null);
 

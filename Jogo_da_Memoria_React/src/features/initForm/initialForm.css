@@ -84,3 +84,33 @@
     font-size: 1.1rem;
     font-weight: 700;
 }
+
+.StartResume {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    background: rgba(56, 211, 159, 0.1);
+    border: 1px solid rgba(56, 211, 159, 0.4);
+}
+
+.StartResume-title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    color: #38d39f;
+}
+
+.StartResume-details {
+    margin: 0 0 0.85rem;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.StartResume-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.StartResume-resume {
+    flex: 1 1 auto;
+}

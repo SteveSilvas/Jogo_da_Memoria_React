@@ -14,6 +14,12 @@ import Scoreboard from "../../components/Scoreboard/Scoreboard";
 import SoundToggle from "../../components/SoundToggle/SoundToggle";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { formatDuration } from "../../utils/time";
+import {
+    clearGame,
+    loadGame,
+    saveGame,
+    type StoredGame,
+} from "../../utils/gameStorage";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
 import "./board.css";
 
@@ -27,7 +33,25 @@ type BoardProps = {
     player1: string;
     player2: string;
     amountCards: number;
+    /** Retoma a partida salva, quando os jogadores e o tamanho conferem. */
+    restoreSaved?: boolean;
     onExit: () => void;
+};
+
+const restoredGame = (
+    restoreSaved: boolean | undefined,
+    player1: string,
+    player2: string,
+    amountCards: number,
+): StoredGame | null => {
+    if (!restoreSaved) return null;
+    const saved = loadGame();
+    if (!saved) return null;
+    const sameSetup =
+        saved.amountCards === amountCards &&
+        saved.players[0].name === player1 &&
+        saved.players[1].name === player2;
+    return sameSetup ? saved : null;
 };
 
 type Player = { name: string; score: number; pairs: string[] };
@@ -40,24 +64,39 @@ const initialPlayers = (player1: string, player2: string): [Player, Player] => [
     { name: player2, score: 0, pairs: [] },
 ];
 
-const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
-    const [cards, setCards] = useState<CardType[]>(() => buildDeck(amountCards));
-    const [selected, setSelected] = useState<number[]>([]);
-    const [turn, setTurn] = useState<0 | 1>(0);
-    const [players, setPlayers] = useState<[Player, Player]>(() =>
-        initialPlayers(player1, player2),
+const Board = ({
+    player1,
+    player2,
+    amountCards,
+    restoreSaved,
+    onExit,
+}: BoardProps) => {
+    // O estado salvo e lido uma unica vez, na montagem.
+    const [restored] = useState(() =>
+        restoredGame(restoreSaved, player1, player2, amountCards),
+    );
+
+    const [cards, setCards] = useState<CardType[]>(
+        () => restored?.cards ?? buildDeck(amountCards),
+    );
+    const [selected, setSelected] = useState<number[]>(
+        () => restored?.selected ?? [],
+    );
+    const [turn, setTurn] = useState<0 | 1>(() => restored?.turn ?? 0);
+    const [players, setPlayers] = useState<[Player, Player]>(
+        () => restored?.players ?? initialPlayers(player1, player2),
     );
     const [isLocked, setIsLocked] = useState(false);
     const [showWinner, setShowWinner] = useState(false);
     const [announcement, setAnnouncement] = useState("");
-    const [moves, setMoves] = useState(0);
+    const [moves, setMoves] = useState(() => restored?.moves ?? 0);
 
     const {
         seconds: elapsedSeconds,
         start: startTimer,
         stop: stopTimer,
         reset: resetTimer,
-    } = useGameTimer();
+    } = useGameTimer(restored?.seconds ?? 0);
 
     const timeoutRef = useRef<number | null>(null);
 
@@ -72,6 +111,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
 
     const resetGame = useCallback(() => {
         clearPendingTimeout();
+        clearGame();
         setCards(buildDeck(amountCards));
         setSelected([]);
         setTurn(0);
@@ -158,8 +198,33 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
             stopTimer();
             setShowWinner(true);
             setAnnouncement("Fim de jogo.");
+            clearGame();
         }
     }, [cards]);
+
+    // Grava a cada estado relevante. Fica de fora do par em avaliacao
+    // (isLocked) para nao salvar duas cartas abertas de uma jogada errada.
+    useEffect(() => {
+        if (isLocked || isGameOver(cards)) return;
+        saveGame({
+            cards,
+            selected,
+            turn,
+            players,
+            moves,
+            seconds: elapsedSeconds,
+            amountCards,
+        });
+    }, [
+        cards,
+        selected,
+        turn,
+        players,
+        moves,
+        elapsedSeconds,
+        amountCards,
+        isLocked,
+    ]);
 
     const renderGrid = () => (
         <div className={`Board-grid ${sizeClassFor(amountCards)}`}>
