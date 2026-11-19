@@ -1,13 +1,15 @@
 # Jogo da Memória
 
-Jogo da memória para dois jogadores, feito com **React + TypeScript + Vite**.
-Cada jogador tenta encontrar mais pares de cartas do que o adversário.
+Jogo da memória para **dois jogadores ou um jogador contra o computador**, feito
+com **React + TypeScript + Vite**. Cada jogador tenta encontrar mais pares de
+cartas do que o adversário.
 
 🔗 **Jogue online:** https://SteveSilvas.github.io/Jogo_da_Memoria_React/
 
 ## Funcionalidades
 
-- Tela inicial para informar os nomes dos dois jogadores e a quantidade de cartas (10, 20, 30 ou 40).
+- Tela inicial para escolher entre 1 jogador (contra o computador) e 2 jogadores, informar os nomes e a quantidade de cartas (10, 20, 30 ou 40).
+- No modo 1 jogador, o computador memoriza as cartas que já viu, joga com um atraso curto e tem chance de esquecer parte das posições — ele não lê cartas nunca viradas.
 - Tabuleiro embaralhado a cada partida, com cartas viradas com animação 3D.
 - Turnos alternados: acertou um par, continua jogando; errou, passa a vez.
 - Placar lateral com pontuação e pares conquistados de cada jogador, destacando quem está jogando.
@@ -51,6 +53,7 @@ Abra o endereço mostrado no terminal (por padrão, `http://localhost:5173/`).
 | `npm run build:pages`| Build com o subcaminho do GitHub Pages                              |
 | `npm run preview`    | Serve localmente a versão de produção já gerada                    |
 | `npm run typecheck`  | Apenas verifica os tipos TypeScript                                 |
+| `npm test`           | Roda a suíte de testes (Vitest)                                     |
 | `npm run deploy`     | Publica a pasta `dist/` no GitHub Pages                             |
 
 ## Estrutura do projeto
@@ -84,7 +87,7 @@ Jogo_da_Memoria_React/                    # raiz do repositório
 
 ## Como jogar
 
-1. Informe o nome dos dois jogadores e escolha a quantidade de cartas.
+1. Escolha o modo (1 jogador contra o computador ou 2 jogadores), informe o(s) nome(s) e a quantidade de cartas.
 2. Clique em **Jogar** para começar.
 3. Na sua vez, vire duas cartas:
    - Se formarem um par, você marca um ponto e joga de novo.

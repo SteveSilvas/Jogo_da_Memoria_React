@@ -15,10 +15,11 @@ const InitMemoryGame = () => {
 
     return (
         <Board
-            key={`${config.player1}-${config.player2}-${config.amountCards}`}
+            key={`${config.mode}-${config.player1}-${config.player2}-${config.amountCards}`}
             player1={config.player1}
             player2={config.player2}
             amountCards={config.amountCards}
+            mode={config.mode}
             onExit={exitGame}
         />
     );

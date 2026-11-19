@@ -6,16 +6,25 @@ type ScoreboardProps = {
     score: number;
     active: boolean;
     pairs: string[];
+    activeLabel?: string;
 };
 
-const Scoreboard = ({ name, score, active, pairs }: ScoreboardProps) => {
+const Scoreboard = ({
+    name,
+    score,
+    active,
+    pairs,
+    activeLabel = "Sua vez",
+}: ScoreboardProps) => {
     return (
         <aside className={`Scoreboard${active ? " is-active" : ""}`}>
             <header className="Scoreboard-header">
                 <span className="Scoreboard-name" title={name}>
                     {name}
                 </span>
-                {active && <span className="Scoreboard-turn">Sua vez</span>}
+                {active && (
+                    <span className="Scoreboard-turn">{activeLabel}</span>
+                )}
             </header>
             <p className="Scoreboard-score">
                 <span className="Scoreboard-scoreValue">{score}</span>
