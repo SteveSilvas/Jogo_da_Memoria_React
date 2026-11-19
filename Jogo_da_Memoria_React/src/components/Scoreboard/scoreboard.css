@@ -101,3 +101,13 @@
         max-height: 4rem;
     }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    .Scoreboard {
+        transition: none;
+    }
+
+    .Scoreboard.is-active {
+        transform: none;
+    }
+}
