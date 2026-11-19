@@ -11,6 +11,7 @@ import {
 import { playSound } from "../../utils/sound";
 import Card from "../../components/Card/Card";
 import Scoreboard from "../../components/Scoreboard/Scoreboard";
+import SoundToggle from "../../components/SoundToggle/SoundToggle";
 import WinnerPanel from "../../components/WinnerPanel/WinnerPanel";
 import "./board.css";
 
@@ -161,6 +162,7 @@ const Board = ({ player1, player2, amountCards, onExit }: BoardProps) => {
 
     return (
         <div className="BoardContainer">
+            <SoundToggle />
             <Scoreboard
                 name={players[0].name}
                 score={players[0].score}
